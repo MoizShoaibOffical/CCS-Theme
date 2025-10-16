@@ -1,0 +1,19 @@
+{
+  "name": "Theme Preferences",
+  "doctype": "DocType",
+  "module": "new_theme",
+  "istable": 0,
+  "custom": 0,
+  "fields": [
+    {"fieldname":"user","label":"User","fieldtype":"Link","options":"User","reqd":1},
+    {"fieldname":"prefs_json","label":"Preferences JSON","fieldtype":"Long Text"}
+  ],
+  "permissions": [
+    {"role":"System Manager","read":1,"write":1,"create":1,"delete":1},
+    {"role":"All","read":1}
+  ],
+  "allow_rename": 0,
+  "naming_rule": "Expression",
+  "autoname": "concat('Theme Preferences-', user)"
+}
+

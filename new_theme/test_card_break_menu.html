@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Break Menu Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>Card Break Menu Test</h2>
+        <p>This page helps test the Card Break Menu functionality.</p>
+        
+        <button class="test-button" onclick="createTestData()">Create Test Data</button>
+        <button class="test-button" onclick="clearTestData()">Clear Test Data</button>
+        <button class="test-button" onclick="testSidebarAPI()">Test Sidebar API</button>
+        <button class="test-button" onclick="refreshPage()">Refresh Page</button>
+        
+        <div id="result" class="result" style="display: none;">
+            <h4>Result:</h4>
+            <div id="result-content"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(message) {
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('result-content').innerHTML = message;
+        }
+
+        function createTestData() {
+            if (typeof frappe !== 'undefined') {
+                frappe.call({
+                    method: 'new_theme.api.test_workspace_sidebar.create_test_data',
+                    callback: function(r) {
+                        showResult(JSON.stringify(r.message, null, 2));
+                    }
+                });
+            } else {
+                showResult('Frappe not available. Please run this in the Frappe environment.');
+            }
+        }
+
+        function clearTestData() {
+            if (typeof frappe !== 'undefined') {
+                frappe.call({
+                    method: 'new_theme.api.test_workspace_sidebar.clear_test_data',
+                    callback: function(r) {
+                        showResult(JSON.stringify(r.message, null, 2));
+                    }
+                });
+            } else {
+                showResult('Frappe not available. Please run this in the Frappe environment.');
+            }
+        }
+
+        function testSidebarAPI() {
+            if (typeof frappe !== 'undefined') {
+                frappe.call({
+                    method: 'new_theme.api.workspace_sidebar.get_workspace_sidebar',
+                    callback: function(r) {
+                        showResult('<pre>' + JSON.stringify(r.message, null, 2) + '</pre>');
+                    }
+                });
+            } else {
+                showResult('Frappe not available. Please run this in the Frappe environment.');
+            }
+        }
+
+        function refreshPage() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>

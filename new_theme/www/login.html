@@ -1,0 +1,79 @@
+{% extends "templates/web.html" %}
+{% block title %}Login{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="/assets/new_theme/css/login.css">
+{% endblock %}
+{% block page_content %}
+<div id="global-loader" style="display:none;"><div class="whirly-loader"></div></div>
+
+<div class="login-shell">
+  <div class="login-grid">
+    <div class="login-left">
+      <div class="login-card">
+        <form id="login-form" novalidate>
+          <div class="login-userset">
+            <div class="login-logo logo-normal">
+              <img src="/assets/new_theme/img/login_logo.svg" alt="logo">
+            </div>
+            <a href="/" class="login-logo logo-white">
+              <img src="/assets/new_theme/img/login_logo.svg" alt="logo white">
+            </a>
+            <div class="login-userheading">
+              <h3>Sign In</h3>
+              <h4 class="fs-16">Access the panel using your email and passcode.</h4>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="text" id="login-email" class="form-control border-end-0" autocomplete="username">
+                <span class="input-group-text border-start-0">
+                  <i class="ti ti-mail"></i>
+                </span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Password <span class="text-danger">*</span></label>
+              <div class="pass-group">
+                <input type="password" id="login-password" class="pass-input form-control" autocomplete="current-password">
+                <span id="toggle-password" class="ti toggle-password ti-eye-off text-gray-9" role="button" aria-label="Toggle password visibility"></span>
+              </div>
+            </div>
+
+            <div class="form-login authentication-check">
+              <div class="row">
+                <div class="col-12 d-flex align-items-center justify-content-between">
+                  <label class="checkboxs ps-4 mb-0 pb-0 line-height-1 fs-16 text-gray-6">
+                    <input type="checkbox" id="remember-me" class="form-control">
+                    <span class="checkmarks"></span>Remember me
+                  </label>
+                  <div class="text-end">
+                    <a class="text-orange fs-16 fw-medium" href="/update-password">Forgot Password?</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-login">
+              <button type="submit" class="btn btn-primary w-100">Sign In</button>
+            </div>
+
+            <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+
+            <div class="my-4 d-flex justify-content-center align-items-center copyright-text">
+              <p>Copyright © {{ frappe.utils.nowdate().split('-')[0] }} CodeCrest Solutions</p>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-hero" role="img" aria-label="Login illustration"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/new_theme/js/login.js"></script>
+{% endblock %}
+

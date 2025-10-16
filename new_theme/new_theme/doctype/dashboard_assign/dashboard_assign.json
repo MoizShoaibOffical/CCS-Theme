@@ -1,0 +1,54 @@
+{
+  "actions": [],
+  "allow_rename": 0,
+  "autoname": "field:user",
+  "beta": 0,
+  "creation": "2025-10-16 09:40:00.000000",
+  "default_view": "List",
+  "doctype": "DocType",
+  "document_type": "Master",
+  "editable_grid": 0,
+  "engine": "InnoDB",
+  "field_order": [
+    "user",
+    "dashboard"
+  ],
+  "fields": [
+    {
+      "fieldname": "user",
+      "fieldtype": "Link",
+      "label": "User",
+      "options": "User",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "dashboard",
+      "fieldtype": "Select",
+      "label": "Dashboard",
+      "options": "Human Resource\nExpense Claims\nAttendance\nEmployee Lifecycle\nRecruitment\nPayroll\nStock\nBuying\nSelling\nProject\nCRM\nAccounts\nAsset\nManufacturing",
+      "reqd": 1,
+      "in_list_view": 1
+    }
+  ],
+  "has_web_view": 0,
+  "hide_toolbar": 0,
+  "index_web_pages_for_search": 0,
+  "is_published_field": "",
+  "issingle": 0,
+  "istable": 0,
+  "links": [],
+  "modified": "2025-10-16 09:40:00.000000",
+  "modified_by": "Administrator",
+  "module": "New Theme",
+  "name": "Dashboard Assign",
+  "owner": "Administrator",
+  "permissions": [
+    {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1}
+  ],
+  "quick_entry": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}
+
+

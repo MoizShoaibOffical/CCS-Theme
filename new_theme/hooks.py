@@ -25,12 +25,31 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/new_theme/css/new_theme.css"
-# app_include_js = "/assets/new_theme/js/new_theme.js"
+app_include_css = [
+	"/assets/new_theme/css/new_theme.css",
+]
+app_include_js = [
+	"/assets/new_theme/js/new_theme.js",
+	"/assets/new_theme/js/desk_layout.js",
+	"/assets/new_theme/js/theme_customizer.js",
+]
+
+# Ship Custom Field(s) with the app
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": [["name", "in", ["User-nt_preferred_dashboard"]]],
+    }
+]
+
+# Expose simple boot defaults so logo can be used
+extend_bootinfo = [
+	"new_theme.boot.add_theme_to_boot",
+]
 
 # include js, css files in header of web template
-# web_include_css = "/assets/new_theme/css/new_theme.css"
-# web_include_js = "/assets/new_theme/js/new_theme.js"
+web_include_css = "/assets/new_theme/css/new_theme.css"
+web_include_js = "/assets/new_theme/js/new_theme.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "new_theme/public/scss/website"
@@ -177,6 +196,17 @@ app_license = "mit"
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "new_theme.event.get_events"
 # }
+
+# Whitelisted Methods
+# -------------------
+override_whitelisted_methods = {
+	"new_theme.api.custom_menu.get_custom_menu": "new_theme.api.custom_menu.get_custom_menu",
+	"new_theme.api.custom_menu.clear_menu_cache": "new_theme.api.custom_menu.clear_menu_cache",
+	"new_theme.api.workspace_sidebar.get_workspace_sidebar": "new_theme.api.workspace_sidebar.get_workspace_sidebar",
+	"new_theme.api.workspace_sidebar.clear_workspace_sidebar_cache": "new_theme.api.workspace_sidebar.clear_workspace_sidebar_cache",
+	"new_theme.api.test_workspace_sidebar.create_test_data": "new_theme.api.test_workspace_sidebar.create_test_data",
+	"new_theme.api.test_workspace_sidebar.clear_test_data": "new_theme.api.test_workspace_sidebar.clear_test_data"
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
@@ -184,6 +214,17 @@ app_license = "mit"
 # override_doctype_dashboards = {
 # 	"Task": "new_theme.task.get_dashboard_data"
 # }
+
+# Extend Bootinfo
+# ----------------
+extend_bootinfo = [
+	"new_theme.boot.add_theme_to_boot",
+]
+
+# Register DocType Python class
+doctype_js = {
+    # (none for client script here)
+}
 
 # exempt linked doctypes from being automatically cancelled
 #
