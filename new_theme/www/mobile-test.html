@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Test - New Theme</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .test-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .test-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .test-button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
+        .test-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .mobile-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-indicator" id="mobile-indicator">Desktop</div>
+    
+    <div class="test-container">
+        <div class="test-header">
+            <h1>📱 Mobile Test</h1>
+            <p>New Theme Mobile Layout Test</p>
+        </div>
+        
+        <div class="test-item">
+            <h3>Screen Size Test</h3>
+            <p>Current width: <span id="screen-width">-</span>px</p>
+            <p>Mobile mode: <span id="mobile-mode">-</span></p>
+        </div>
+        
+        <div class="test-item">
+            <h3>Touch Test</h3>
+            <button class="test-button" onclick="testTouch()">Test Touch</button>
+            <div id="touch-result" class="status" style="display: none;"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Form Test</h3>
+            <input type="text" class="test-input" placeholder="Test input field">
+            <button class="test-button" onclick="testForm()">Test Form</button>
+        </div>
+        
+        <div class="test-item">
+            <h3>Navigation Test</h3>
+            <button class="test-button" onclick="testNavigation()">Test Navigation</button>
+            <div id="nav-result" class="status" style="display: none;"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>CSS Test</h3>
+            <button class="test-button" onclick="testCSS()">Test CSS Loading</button>
+            <div id="css-result" class="status" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Update screen size info
+        function updateScreenInfo() {
+            const width = window.innerWidth;
+            const isMobile = width <= 768;
+            
+            document.getElementById('screen-width').textContent = width;
+            document.getElementById('mobile-mode').textContent = isMobile ? 'Yes' : 'No';
+            document.getElementById('mobile-indicator').textContent = isMobile ? 'Mobile' : 'Desktop';
+            document.getElementById('mobile-indicator').style.background = isMobile ? '#28a745' : '#6c757d';
+        }
+        
+        // Test touch functionality
+        function testTouch() {
+            const result = document.getElementById('touch-result');
+            result.style.display = 'block';
+            result.className = 'status success';
+            result.textContent = 'Touch test passed! ✅';
+        }
+        
+        // Test form functionality
+        function testForm() {
+            const input = document.querySelector('.test-input');
+            if (input.value.trim()) {
+                alert('Form test passed! Value: ' + input.value);
+            } else {
+                alert('Please enter some text first!');
+            }
+        }
+        
+        // Test navigation
+        function testNavigation() {
+            const result = document.getElementById('nav-result');
+            result.style.display = 'block';
+            
+            // Check if we're in mobile mode
+            if (window.innerWidth <= 768) {
+                result.className = 'status success';
+                result.textContent = 'Mobile navigation should be active! ✅';
+            } else {
+                result.className = 'status error';
+                result.textContent = 'Resize to mobile width (< 768px) to test mobile navigation';
+            }
+        }
+        
+        // Test CSS loading
+        function testCSS() {
+            const result = document.getElementById('css-result');
+            result.style.display = 'block';
+            
+            // Check if new_theme CSS is loaded
+            const links = document.querySelectorAll('link[href*="new_theme"]');
+            if (links.length > 0) {
+                result.className = 'status success';
+                result.textContent = 'New Theme CSS is loaded! ✅';
+            } else {
+                result.className = 'status error';
+                result.textContent = 'New Theme CSS not found. Check if app is installed.';
+            }
+        }
+        
+        // Initialize
+        updateScreenInfo();
+        window.addEventListener('resize', updateScreenInfo);
+        
+        // Auto-test on load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testCSS();
+                testNavigation();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

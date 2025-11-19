@@ -32,6 +32,7 @@ app_include_js = [
 	"/assets/new_theme/js/new_theme.js",
 	"/assets/new_theme/js/desk_layout.js",
 	"/assets/new_theme/js/theme_customizer.js",
+	"/assets/new_theme/js/mobile-debug.js",
 ]
 
 # Ship Custom Field(s) with the app
@@ -48,8 +49,14 @@ extend_bootinfo = [
 ]
 
 # include js, css files in header of web template
-web_include_css = "/assets/new_theme/css/new_theme.css"
-web_include_js = "/assets/new_theme/js/new_theme.js"
+web_include_css = [
+    "/assets/new_theme/css/new_theme.css",
+    "/assets/new_theme/css/login.css"
+]
+web_include_js = [
+    "/assets/new_theme/js/new_theme.js",
+    "/assets/new_theme/js/login.js"
+]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "new_theme/public/scss/website"

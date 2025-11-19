@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Debug - New Theme</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .debug-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .debug-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .debug-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .debug-item.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .debug-item.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .debug-item.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .debug-button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .debug-button:hover {
+            background: #0056b3;
+        }
+        
+        .debug-result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1 class="debug-header">🔧 Mobile Debug Tool</h1>
+        
+        <div class="debug-item">
+            <h3>📱 Screen Information</h3>
+            <div id="screen-info">Loading...</div>
+        </div>
+        
+        <div class="debug-item">
+            <h3>🎨 CSS Status</h3>
+            <div id="css-status">Loading...</div>
+        </div>
+        
+        <div class="debug-item">
+            <h3>🍔 Mobile Navigation</h3>
+            <div id="nav-status">Loading...</div>
+        </div>
+        
+        <div class="debug-item">
+            <h3>📊 Layout Elements</h3>
+            <div id="layout-status">Loading...</div>
+        </div>
+        
+        <button class="debug-button" onclick="runFullDiagnostic()">
+            🔍 Run Full Diagnostic
+        </button>
+        
+        <button class="debug-button" onclick="testMobileFeatures()">
+            📱 Test Mobile Features
+        </button>
+        
+        <button class="debug-button" onclick="fixMobileLayout()">
+            🔧 Fix Mobile Layout
+        </button>
+        
+        <div id="debug-result" class="debug-result" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Screen information
+        function updateScreenInfo() {
+            const screenInfo = document.getElementById('screen-info');
+            screenInfo.innerHTML = `
+                <strong>Screen Width:</strong> ${window.innerWidth}px<br>
+                <strong>Screen Height:</strong> ${window.innerHeight}px<br>
+                <strong>Device Pixel Ratio:</strong> ${window.devicePixelRatio}<br>
+                <strong>User Agent:</strong> ${navigator.userAgent}<br>
+                <strong>Is Mobile:</strong> ${window.innerWidth <= 768 ? '✅ Yes' : '❌ No'}
+            `;
+        }
+        
+        // CSS Status
+        function updateCSSStatus() {
+            const cssStatus = document.getElementById('css-status');
+            const newThemeCSS = document.querySelector('link[href*="new_theme.css"]');
+            const mobileMediaQuery = window.matchMedia('(max-width: 768px)');
+            
+            cssStatus.innerHTML = `
+                <strong>New Theme CSS:</strong> ${newThemeCSS ? '✅ Loaded' : '❌ Not Found'}<br>
+                <strong>Mobile Media Query:</strong> ${mobileMediaQuery.matches ? '✅ Active' : '❌ Inactive'}<br>
+                <strong>Viewport Meta:</strong> ${document.querySelector('meta[name="viewport"]') ? '✅ Present' : '❌ Missing'}
+            `;
+        }
+        
+        // Navigation Status
+        function updateNavStatus() {
+            const navStatus = document.getElementById('nav-status');
+            const mobileHeader = document.querySelector('.nt-mobile-header');
+            const hamburgerMenu = document.querySelector('.hamburger-menu, .mobile-menu-btn');
+            const sidebar = document.querySelector('.nt-sidebar, .standard-sidebar');
+            
+            navStatus.innerHTML = `
+                <strong>Mobile Header:</strong> ${mobileHeader ? '✅ Found' : '❌ Not Found'}<br>
+                <strong>Hamburger Menu:</strong> ${hamburgerMenu ? '✅ Found' : '❌ Not Found'}<br>
+                <strong>Sidebar:</strong> ${sidebar ? '✅ Found' : '❌ Not Found'}<br>
+                <strong>Sidebar Hidden:</strong> ${sidebar && window.getComputedStyle(sidebar).display === 'none' ? '✅ Yes' : '❌ No'}
+            `;
+        }
+        
+        // Layout Status
+        function updateLayoutStatus() {
+            const layoutStatus = document.getElementById('layout-status');
+            const body = document.body;
+            const bodyClasses = body.className;
+            const bodyStyles = window.getComputedStyle(body);
+            
+            layoutStatus.innerHTML = `
+                <strong>Body Classes:</strong> ${bodyClasses}<br>
+                <strong>Body Background:</strong> ${bodyStyles.backgroundColor}<br>
+                <strong>Body Margin:</strong> ${bodyStyles.margin}<br>
+                <strong>Body Padding:</strong> ${bodyStyles.padding}<br>
+                <strong>Overflow X:</strong> ${bodyStyles.overflowX}
+            `;
+        }
+        
+        // Run full diagnostic
+        function runFullDiagnostic() {
+            const result = document.getElementById('debug-result');
+            result.style.display = 'block';
+            
+            let diagnostic = '🔍 FULL DIAGNOSTIC REPORT\n';
+            diagnostic += '='.repeat(50) + '\n\n';
+            
+            // Screen info
+            diagnostic += '📱 SCREEN INFORMATION:\n';
+            diagnostic += `Width: ${window.innerWidth}px\n`;
+            diagnostic += `Height: ${window.innerHeight}px\n`;
+            diagnostic += `Is Mobile: ${window.innerWidth <= 768}\n\n`;
+            
+            // CSS check
+            diagnostic += '🎨 CSS STATUS:\n';
+            const newThemeCSS = document.querySelector('link[href*="new_theme.css"]');
+            diagnostic += `New Theme CSS: ${newThemeCSS ? 'Loaded' : 'Missing'}\n`;
+            diagnostic += `Mobile Media Query: ${window.matchMedia('(max-width: 768px)').matches}\n\n`;
+            
+            // Elements check
+            diagnostic += '🍔 ELEMENTS CHECK:\n';
+            const mobileHeader = document.querySelector('.nt-mobile-header');
+            const hamburgerMenu = document.querySelector('.hamburger-menu, .mobile-menu-btn');
+            const sidebar = document.querySelector('.nt-sidebar, .standard-sidebar');
+            
+            diagnostic += `Mobile Header: ${mobileHeader ? 'Found' : 'Missing'}\n`;
+            diagnostic += `Hamburger Menu: ${hamburgerMenu ? 'Found' : 'Missing'}\n`;
+            diagnostic += `Sidebar: ${sidebar ? 'Found' : 'Missing'}\n`;
+            
+            if (sidebar) {
+                const sidebarStyle = window.getComputedStyle(sidebar);
+                diagnostic += `Sidebar Display: ${sidebarStyle.display}\n`;
+                diagnostic += `Sidebar Visibility: ${sidebarStyle.visibility}\n`;
+            }
+            
+            result.textContent = diagnostic;
+        }
+        
+        // Test mobile features
+        function testMobileFeatures() {
+            const result = document.getElementById('debug-result');
+            result.style.display = 'block';
+            
+            let test = '📱 MOBILE FEATURES TEST\n';
+            test += '='.repeat(50) + '\n\n';
+            
+            // Test touch events
+            test += '👆 TOUCH EVENTS:\n';
+            test += `Touch Support: ${('ontouchstart' in window) ? 'Yes' : 'No'}\n`;
+            test += `Max Touch Points: ${navigator.maxTouchPoints || 'N/A'}\n\n`;
+            
+            // Test viewport
+            test += '📐 VIEWPORT TEST:\n';
+            test += `Viewport Width: ${window.innerWidth}px\n`;
+            test += `Viewport Height: ${window.innerHeight}px\n`;
+            test += `Device Pixel Ratio: ${window.devicePixelRatio}\n\n`;
+            
+            // Test CSS media queries
+            test += '🎨 CSS MEDIA QUERIES:\n';
+            const mediaQueries = [
+                '(max-width: 768px)',
+                '(max-width: 480px)',
+                '(orientation: portrait)',
+                '(orientation: landscape)'
+            ];
+            
+            mediaQueries.forEach(mq => {
+                test += `${mq}: ${window.matchMedia(mq).matches ? 'Active' : 'Inactive'}\n`;
+            });
+            
+            result.textContent = test;
+        }
+        
+        // Fix mobile layout
+        function fixMobileLayout() {
+            const result = document.getElementById('debug-result');
+            result.style.display = 'block';
+            
+            let fix = '🔧 FIXING MOBILE LAYOUT\n';
+            fix += '='.repeat(50) + '\n\n';
+            
+            // Force mobile layout
+            if (window.innerWidth <= 768) {
+                // Hide sidebar
+                const sidebars = document.querySelectorAll('.nt-sidebar, .standard-sidebar, .desk-sidebar');
+                sidebars.forEach(sidebar => {
+                    sidebar.style.display = 'none';
+                    sidebar.style.visibility = 'hidden';
+                    sidebar.style.opacity = '0';
+                    sidebar.style.transform = 'translateX(-100%)';
+                });
+                fix += '✅ Sidebar hidden\n';
+                
+                // Ensure mobile header is visible
+                const mobileHeader = document.querySelector('.nt-mobile-header');
+                if (mobileHeader) {
+                    mobileHeader.style.display = 'flex';
+                    mobileHeader.style.visibility = 'visible';
+                    mobileHeader.style.opacity = '1';
+                }
+                fix += '✅ Mobile header shown\n';
+                
+                // Force mobile body styles
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+                document.body.style.overflowX = 'hidden';
+                fix += '✅ Body styles applied\n';
+                
+                // Add mobile class
+                document.body.classList.add('mobile-layout');
+                fix += '✅ Mobile class added\n';
+                
+            } else {
+                fix += '❌ Not in mobile viewport\n';
+            }
+            
+            result.textContent = fix;
+        }
+        
+        // Initialize
+        updateScreenInfo();
+        updateCSSStatus();
+        updateNavStatus();
+        updateLayoutStatus();
+        
+        // Update on resize
+        window.addEventListener('resize', () => {
+            updateScreenInfo();
+            updateCSSStatus();
+            updateNavStatus();
+            updateLayoutStatus();
+        });
+    </script>
+</body>
+</html>
