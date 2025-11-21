@@ -4,20 +4,6 @@
 	Custom Desk layout: replaces default navbar/sidebar with New Theme layout
 */
 (function () {
-	// Early redirect to preferred dashboard to avoid loading default HR widgets
-	try {
-		const prefDash = getPreferredLabel();
-		if (prefDash) {
-			const path = location.pathname.toLowerCase();
-			const hash = (location.hash || '').toLowerCase();
-			const isHome = hash.includes('app/home') || path.endsWith('/app/home') || path.endsWith('/app') || hash === '';
-			if (isHome) {
-				// Always land on assigned dashboard as Home
-				const target = `dashboard-view/${encodeURIComponent(prefDash)}`;
-				if (target) location.hash = '#' + target;
-			}
-		}
-	} catch (e) {}
 	function createContainer() {
 		let root = document.getElementById("nt-root");
 		if (root) return root;
@@ -104,169 +90,16 @@ function navItem(label, routeOrSlug) {
 	}
 
 // Feature flags
-const HIDE_WORKSPACES = false; // Show Workspace section; Home still routes to assigned dashboard
+const HIDE_WORKSPACES = false;
 
-// Preferred dashboard helpers (keyed per user)
-function getPreferredKey() {
-    const u = (window.frappe?.session?.user || 'guest');
-    return `nt:preferred-dashboard:${u}`;
-}
+// Stubbed dashboard helpers (feature removed)
 function getPreferredLabel() {
-    try {
-        const v = (localStorage.getItem(getPreferredKey()) || '').trim();
-        if (v) return v;
-        const bootPref = (window.frappe?.boot?.new_theme_settings?.default_dashboard || '').trim();
-        return bootPref;
-    } catch (e) { return ''; }
+	return '';
 }
-
-// Resolve a list of dashboards to show based on roles or a per-user preference
-function resolveDashboardsForUser(allLabels) {
-	try {
-		// 1) Per-user override via localStorage or boot (if provided by backend)
-		const ls = getPreferredLabel();
-		const bootPref = (window.frappe?.boot?.new_theme_settings?.default_dashboard || '').trim();
-		const pick = ls || bootPref;
-		if (pick && allLabels.includes(pick)) return [pick];
-		// 2) Role-based filter using a simple label-to-roles map
-		const roles = new Set(window.frappe?.boot?.user?.roles || []);
-		const map = {
-			'Human Resource': ['HR User', 'HR Manager'],
-			'Expense Claims': ['HR User', 'HR Manager', 'Employee'],
-			'Attendance': ['HR User', 'HR Manager', 'Employee'],
-			'Employee Lifecycle': ['HR User', 'HR Manager'],
-			'Recruitment': ['HR User', 'HR Manager'],
-			'Payroll': ['HR User', 'HR Manager', 'Payroll User', 'Payroll Manager'],
-			'Stock': ['Stock User', 'Stock Manager'],
-			'Buying': ['Purchase User', 'Purchase Manager'],
-			'Selling': ['Sales User', 'Sales Manager'],
-			'Project': ['Projects User', 'Projects Manager'],
-			'CRM': ['Sales User', 'Sales Manager', 'CRM User'],
-			'Accounts': ['Accounts User', 'Accounts Manager'],
-			'Asset': ['Assets Manager', 'Accounts User', 'Accounts Manager'],
-			'Manufacturing': ['Manufacturing User', 'Manufacturing Manager']
-		};
-		const filtered = allLabels.filter(lbl => {
-			const allow = map[lbl];
-			if (!allow || !allow.length) return true; // if unmapped, don't hide
-			return allow.some(r => roles.has(r));
-		});
-		return filtered.length ? filtered : allLabels;
-	} catch (e) {
-		return allLabels;
-	}
-}
-
-// Optionally fetch user's preferred dashboard custom field and persist to localStorage, then rebuild nav
-async function loadUserDashboardPreference() {
-	try {
-		const user = window.frappe?.session?.user;
-		if (!user || !window.frappe?.call) return;
-		// 1) Try User custom field (nt_preferred_dashboard)
-		const r = await frappe.call({
-			method: 'frappe.client.get_value',
-			args: { doctype: 'User', fieldname: 'nt_preferred_dashboard', filters: { name: user } },
-		});
-		const msg = r && r.message;
-		let val = (msg?.nt_preferred_dashboard || '').trim();
-		// 2) Fallback to Dashboard Assign DocType (named by user)
-		if (!val) {
-			try {
-				const r2 = await frappe.call({
-					method: 'frappe.client.get_value',
-					args: { doctype: 'Dashboard Assign', fieldname: 'dashboard', filters: { name: user } },
-				});
-				val = (r2 && r2.message && r2.message.dashboard) ? String(r2.message.dashboard).trim() : '';
-			} catch (e) {}
-		}
-		if (val) {
-			const curr = getPreferredLabel();
-			if (curr !== val) {
-				localStorage.setItem(getPreferredKey(), val);
-				try { window.rebuildSidebar && window.rebuildSidebar(); } catch (e) {}
-				try { document.dispatchEvent(new Event('nt:preferred-dashboard-updated')); } catch (e) {}
-			}
-		}
-	} catch (e) {
-		// field may not exist; ignore
-	}
-}
-
-// Map dashboard names to actual Dashboard document names
-function getDashboardDocumentName(dashboardName) {
-	// These are the actual dashboard names from your DryFruit site
-	const dashboardMap = {
-		'Stock': 'Stock',
-		'Human Resource': 'Human Resource', 
-		'Accounts': 'Accounts',
-		'CRM': 'CRM',
-		'Project': 'Project',
-		'Manufacturing': 'Manufacturing',
-		'Buying': 'Buying',
-		'Selling': 'Selling',
-		'Asset': 'Asset',
-		'Expense Claims': 'Expense Claims',
-		'Attendance': 'Attendance',
-		'Employee Lifecycle': 'Employee Lifecycle',
-		'Recruitment': 'Recruitment',
-		'Payroll': 'Payroll'
-	};
-	return dashboardMap[dashboardName] || dashboardName;
-}
-
-function maybeRedirectToPreferredDashboard() {
-	try {
-		const pref = getPreferredLabel();
-		if (!pref) return;
-		const routeArr = (window.frappe?.router?.current_route || []);
-		const routeStr = routeArr.join('/').toLowerCase();
-		const homeRegex = new RegExp('(^|\\/)home(\\b|\\/)');
-		const onHome = routeStr === '' || routeStr === 'home' || routeStr === 'app/home' || homeRegex.test(routeStr);
-		const onAppRoot = /\/app\/?$/.test(location.pathname);
-		if (onHome || onAppRoot) {
-			// Map the preferred dashboard name to actual Dashboard document name
-			const dashboardDocName = getDashboardDocumentName(pref);
-			console.log('Redirecting to dashboard:', pref, '->', dashboardDocName);
-			try { 
-				window.frappe?.router?.set_route('dashboard-view', dashboardDocName);
-				// Force a page reload to ensure correct dashboard content
-				setTimeout(() => {
-					if (window.frappe?.router?.current_route?.[0] === 'dashboard-view' && 
-						window.frappe?.router?.current_route?.[1] === dashboardDocName) {
-						// Check if we're actually showing the right content
-						const pageTitle = document.querySelector('.page-title, .page-head .page-title, h1');
-						if (pageTitle && !pageTitle.textContent.toLowerCase().includes(pref.toLowerCase())) {
-							console.log('Forcing dashboard reload for:', dashboardDocName);
-							window.location.reload();
-						}
-					}
-				}, 500);
-			}
-			catch (e) { 
-				console.warn('Failed to redirect to dashboard:', e);
-				try { location.hash = '#dashboard-view/' + encodeURIComponent(dashboardDocName); } catch (e2) {} 
-			}
-		}
-	} catch (e) {}
-}
-
-function resolvePreferredHomeRoute(pref) {
-	try {
-		const p = (pref || '').toString().trim();
-		if (!p) return '';
-		const workspaces = (window.frappe?.boot?.allowed_workspaces || []);
-		const slug = (s) => {
-			try { return (window.frappe?.router?.slug ? frappe.router.slug(s) : String(s)).toLowerCase(); } catch (e) { return String(s || '').toLowerCase(); }
-		};
-		const pSlug = slug(p);
-		// Best match priority: exact title/name -> slug match -> substring in title
-		let ws = workspaces.find(w => (w.title || w.name || '').toString().toLowerCase() === p.toLowerCase());
-		if (!ws) ws = workspaces.find(w => slug(w.title || w.name) === pSlug || slug(w.name) === pSlug);
-		if (!ws) ws = workspaces.find(w => ((w.title || '').toString().toLowerCase().includes(p.toLowerCase())));
-		if (ws && ws.name) return `workspace/${encodeURIComponent(ws.name)}`;
-		// Fallback to ERPNext dashboard view
-		return `dashboard-view/${encodeURIComponent(p)}`;
-	} catch (e) { return ''; }
+function loadUserDashboardPreference() {}
+function maybeRedirectToPreferredDashboard() {}
+function getDashboardDocumentName(name) {
+	return name;
 }
 
 	function buildNav() {
@@ -281,58 +114,6 @@ function resolvePreferredHomeRoute(pref) {
 		const SHOW_GENERIC_MODULES = false;
 		
 
-	// Dashboards parent with curated submenu (collapsible)
-	try {
-		const allDashboards = [
-			"Human Resource","Expense Claims","Attendance","Employee Lifecycle","Recruitment","Payroll",
-			"Stock","Buying","Selling","Project","CRM","Accounts","Asset","Manufacturing"
-		];
-		const dashboards = resolveDashboardsForUser(allDashboards);
-		if (dashboards.length) {
-			const section = document.createElement('div');
-			section.className = 'nt-nav-section';
-			const group = document.createElement('div'); group.className = 'nt-nav-sub-group';
-			const head = document.createElement('a'); head.className = 'nt-nav-item nt-nav-sub-head'; head.href = 'javascript:void(0)'; head.innerHTML = `Dashboards <span class="nt-chevron">▶</span>`;
-			const sub = document.createElement('div'); sub.className = 'nt-sublist-2';
-			const dashKey = 'nt:dashboards-open';
-			// If a single preferred dashboard is set, open the group by default
-		const preferred = getPreferredLabel();
-			if (preferred && dashboards.length === 1) { group.classList.add('open'); sub.style.display = 'block'; const chev0 = head.querySelector('.nt-chevron'); if (chev0) chev0.style.transform = 'rotate(90deg)'; }
-			if (localStorage.getItem(dashKey) === '1') { group.classList.add('open'); sub.style.display = 'block'; const chev0 = head.querySelector('.nt-chevron'); if (chev0) chev0.style.transform = 'rotate(90deg)'; }
-			head.onclick = (e) => {
-				e.preventDefault();
-				group.classList.toggle('open');
-				sub.style.display = group.classList.contains('open') ? 'block' : 'none';
-				localStorage.setItem(dashKey, group.classList.contains('open') ? '1' : '0');
-				const chev = head.querySelector('.nt-chevron'); if (chev) chev.style.transform = group.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0)';
-			};
-			dashboards.forEach(role => {
-				const item = document.createElement('a');
-				item.className = 'nt-nav-item';
-				item.textContent = role;
-				item.href = 'javascript:void(0)';
-				item.onclick = () => { 
-			try { 
-				// Map dashboard name to actual Dashboard document name
-				const dashboardDocName = getDashboardDocumentName(role);
-				console.log('Navigating to dashboard:', role, '->', dashboardDocName);
-				// Navigate to dashboard view with the selected dashboard
-				if (window.frappe?.router) {
-					window.frappe.router.set_route('dashboard-view', dashboardDocName);
-				}
-			} catch (e) {
-				console.warn('Failed to navigate to dashboard:', role, e);
-			}
-		};
-				sub.appendChild(item);
-			});
-			group.appendChild(head);
-			group.appendChild(sub);
-			section.appendChild(group);
-			nav.appendChild(section);
-		}
-	} catch (e) { console.warn('Dashboard menu build failed', e); }
-	
 	// Add test function to window for debugging
 	window.testCardBreakMenu = function() {
 		console.log('Testing Card Break Menu structure...');
@@ -518,9 +299,17 @@ function resolvePreferredHomeRoute(pref) {
         if (HIDE_WORKSPACES) return; // skip rendering workspaces
         const allowed = window.frappe?.boot?.allowed_workspaces || [];
         if (!allowed.length) return;
+        
+        // Sort workspaces alphabetically by title
+        const sortedWorkspaces = [...allowed].sort((a, b) => {
+            const titleA = (a.title || a.name || '').toLowerCase();
+            const titleB = (b.title || b.name || '').toLowerCase();
+            return titleA.localeCompare(titleB);
+        });
+        
         const section = document.createElement('div');
         section.className = 'nt-nav-section';
-        allowed.forEach(ws => {
+        sortedWorkspaces.forEach(ws => {
             const el = createWorkspaceLazyElement(ws);
             section.appendChild(el);
         });

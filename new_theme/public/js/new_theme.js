@@ -68,91 +68,52 @@
 		viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
 	}
 
-// NUCLEAR MOBILE FIX - ULTIMATE APPROACH
+const MOBILE_MAX_WIDTH = 768;
+const mobileMediaQuery = window.matchMedia(`(max-width: ${MOBILE_MAX_WIDTH}px)`);
+let mobileLayoutActive = false;
+let mobileMenuInitialized = false;
+
 function initMobileLayout() {
-    if (window.innerWidth <= 768) {
-        console.log('🚀 NUCLEAR MOBILE FIX STARTED');
-        
-        // NUCLEAR: Hide ALL possible sidebar elements
-        const sidebarSelectors = [
-            '*[class*="sidebar"]', '*[id*="sidebar"]', '.nt-sidebar', '.standard-sidebar', 
-            '.desk-sidebar', '.sidebar-section', '.layout-side-section', '.sidebar',
-            '.sidebar-container', '.sidebar-wrapper', '[class*="sidebar"]', 'div[class*="sidebar"]'
-        ];
-        
-        sidebarSelectors.forEach(selector => {
-            try {
-                const elements = document.querySelectorAll(selector);
-                elements.forEach(element => {
-                    // Apply nuclear CSS
-                    element.style.cssText = `
-                        display: none !important;
-                        visibility: hidden !important;
-                        opacity: 0 !important;
-                        width: 0 !important;
-                        height: 0 !important;
-                        overflow: hidden !important;
-                        position: fixed !important;
-                        left: -9999px !important;
-                        top: -9999px !important;
-                        z-index: -9999 !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        border: none !important;
-                        box-shadow: none !important;
-                        transform: translateX(-100%) !important;
-                    `;
-                });
-            } catch (e) {
-                console.log('Error hiding sidebar:', e);
-            }
-        });
-        
-        // Force hide any remaining sidebars
-        setTimeout(() => {
-            const allElements = document.querySelectorAll('*');
-            allElements.forEach(element => {
-                const className = element.className || '';
-                const id = element.id || '';
-                if (className.includes('sidebar') || id.includes('sidebar')) {
-                    element.style.cssText = `
-                        display: none !important;
-                        visibility: hidden !important;
-                        opacity: 0 !important;
-                        width: 0 !important;
-                        height: 0 !important;
-                        overflow: hidden !important;
-                        position: fixed !important;
-                        left: -9999px !important;
-                        top: -9999px !important;
-                        z-index: -9999 !important;
-                    `;
-                }
-            });
-        }, 100);
-        
-        // Create mobile header
-        createMobileHeader();
-        
-        // Create mobile navigation
-        createMobileNavigation();
-        
-        // Optimize mobile content
-        optimizeMobileContent();
-        
-        // Apply mobile UI improvements
-        improveMobileUI();
-        
-        console.log('✅ NUCLEAR MOBILE FIX COMPLETED');
-    }
+	if (!mobileMediaQuery.matches) {
+		teardownMobileLayout();
+		return;
+	}
+	if (mobileLayoutActive) {
+		// already initialized, nothing extra to do
+		return;
+	}
+	mobileLayoutActive = true;
+	document.body.classList.add('nt-mobile-ready');
+	createMobileHeader();
+	createMobileNavigation();
+	initMobileMenu();
+	optimizeMobileContent();
+	testMobileLayout();
+}
+
+function teardownMobileLayout() {
+	if (!mobileLayoutActive) return;
+	mobileLayoutActive = false;
+	document.body.classList.remove('nt-mobile-ready');
+	const nav = document.querySelector('.nt-mobile-nav');
+	const overlay = document.getElementById('nt-mobile-nav-overlay');
+	const menuBtn = document.getElementById('nt-mobile-menu-btn');
+	nav && nav.classList.remove('open');
+	overlay && overlay.classList.remove('active');
+	if (menuBtn) {
+		menuBtn.classList.remove('active');
+		menuBtn.classList.remove('open');
+	}
+	document.body.style.overflow = '';
 }
 	
 	// Create mobile header
 	function createMobileHeader() {
-		if (!document.querySelector('.nt-mobile-header')) {
-			const header = document.createElement('div');
-			header.className = 'nt-mobile-header';
-			header.innerHTML = `
+	let header = document.querySelector('.nt-mobile-header');
+	if (header) return header;
+	header = document.createElement('div');
+	header.className = 'nt-mobile-header';
+	header.innerHTML = `
 				<div class="nt-mobile-menu-btn" id="nt-mobile-menu-btn">
 					<span></span>
 					<span></span>
@@ -189,16 +150,17 @@ function initMobileLayout() {
 				padding: 0 16px;
 				box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 			`;
-			document.body.insertBefore(header, document.body.firstChild);
-		}
+	document.body.insertBefore(header, document.body.firstChild);
+	return header;
 	}
 	
 	// Create mobile navigation
 	function createMobileNavigation() {
-		if (!document.querySelector('.nt-mobile-nav')) {
-			const nav = document.createElement('div');
-			nav.className = 'nt-mobile-nav';
-			nav.innerHTML = `
+	let nav = document.querySelector('.nt-mobile-nav');
+	if (nav) return nav;
+	nav = document.createElement('div');
+	nav.className = 'nt-mobile-nav';
+	nav.innerHTML = `
 				<div class="nt-mobile-nav-overlay" id="nt-mobile-nav-overlay"></div>
 				<div class="nt-mobile-nav-content">
 					<div class="nt-mobile-nav-header">
@@ -257,45 +219,8 @@ function initMobileLayout() {
 					</div>
 				</div>
 			`;
-			nav.style.cssText = `
-				position: fixed;
-				top: 0;
-				left: -280px;
-				width: 280px;
-				height: 100vh;
-				background: #fff;
-				z-index: 1001;
-				transition: left 0.3s ease;
-				box-shadow: 2px 0 10px rgba(0,0,0,0.15);
-			`;
-			document.body.appendChild(nav);
-			
-			// Add navigation functionality
-			const menuBtn = document.getElementById('nt-mobile-menu-btn');
-			const navOverlay = document.getElementById('nt-mobile-nav-overlay');
-			const navClose = document.getElementById('nt-mobile-nav-close');
-			
-			if (menuBtn) {
-				menuBtn.addEventListener('click', () => {
-					nav.style.left = '0';
-					navOverlay.style.display = 'block';
-				});
-			}
-			
-			if (navOverlay) {
-				navOverlay.addEventListener('click', () => {
-					nav.style.left = '-280px';
-					navOverlay.style.display = 'none';
-				});
-			}
-			
-			if (navClose) {
-				navClose.addEventListener('click', () => {
-					nav.style.left = '-280px';
-					navOverlay.style.display = 'none';
-				});
-			}
-		}
+	document.body.appendChild(nav);
+	return nav;
 	}
 	
 	// Optimize mobile content
@@ -356,67 +281,14 @@ function initMobileLayout() {
 	
 	// Test mobile layout
 	function testMobileLayout() {
-		if (window.innerWidth <= 768) {
-			console.log('📱 Mobile Layout Test Started');
-			
-			let testResults = {
-				sidebars: 0,
-				header: false,
-				navigation: false,
-				content: false,
-				layout: false
-			};
-			
-			// Test 1: Check if sidebars are hidden
-			const sidebars = document.querySelectorAll('.nt-sidebar, .standard-sidebar, .desk-sidebar, .sidebar-section, .layout-side-section');
-			sidebars.forEach(sidebar => {
-				if (sidebar.style.display === 'none' || sidebar.style.visibility === 'hidden') {
-					testResults.sidebars++;
-				}
-			});
-			console.log(`✅ Sidebars hidden: ${testResults.sidebars}/${sidebars.length}`);
-			
-			// Test 2: Check if mobile header exists
-			const mobileHeader = document.querySelector('.nt-mobile-header');
-			if (mobileHeader) {
-				testResults.header = true;
-				console.log('✅ Mobile header created');
-			} else {
-				console.log('❌ Mobile header not found');
-			}
-			
-			// Test 3: Check if mobile navigation exists
-			const mobileNav = document.querySelector('.nt-mobile-nav');
-			if (mobileNav) {
-				testResults.navigation = true;
-				console.log('✅ Mobile navigation created');
-			} else {
-				console.log('❌ Mobile navigation not found');
-			}
-			
-			// Test 4: Check if content is full width
-			const content = document.querySelector('.nt-content, .page-container');
-			if (content && (content.style.width === '100%' || content.offsetWidth >= window.innerWidth * 0.9)) {
-				testResults.content = true;
-				console.log('✅ Content is full width');
-			} else {
-				console.log('❌ Content width issue');
-			}
-			
-			// Test 5: Check if main layout is single column
-			const main = document.querySelector('.nt-main, .desk-container .nt-main');
-			if (main && (main.style.gridTemplateColumns === '1fr' || main.offsetWidth >= window.innerWidth * 0.9)) {
-				testResults.layout = true;
-				console.log('✅ Main layout is single column');
-			} else {
-				console.log('❌ Main layout issue');
-			}
-			
-			// Show visual test indicator
-			showMobileTestIndicator(testResults);
-			
-			console.log('📱 Mobile Layout Test Completed');
-		}
+	if (!mobileLayoutActive) return;
+	const testResults = {
+		header: !!document.querySelector('.nt-mobile-header'),
+		navigation: !!document.querySelector('.nt-mobile-nav'),
+		content: !!document.querySelector('.nt-content, .page-container'),
+		layout: document.body.classList.contains('nt-mobile-ready'),
+	};
+	showMobileTestIndicator(testResults);
 	}
 	
 	// Show mobile test indicator
@@ -428,8 +300,12 @@ function initMobileLayout() {
 		}
 		
 		// Calculate success rate
-		const totalTests = 5;
-		const passedTests = results.sidebars + (results.header ? 1 : 0) + (results.navigation ? 1 : 0) + (results.content ? 1 : 0) + (results.layout ? 1 : 0);
+	const totalTests = 4;
+	const passedTests =
+		(results.header ? 1 : 0) +
+		(results.navigation ? 1 : 0) +
+		(results.content ? 1 : 0) +
+		(results.layout ? 1 : 0);
 		const successRate = Math.round((passedTests / totalTests) * 100);
 		
 		// Create indicator
@@ -467,7 +343,6 @@ function initMobileLayout() {
 		debug.className = 'nt-mobile-debug show';
 		debug.innerHTML = `
 			<div style="margin-bottom: 8px; font-weight: bold;">📱 Mobile Layout Debug</div>
-			<div>Sidebars Hidden: ${results.sidebars}</div>
 			<div>Mobile Header: ${results.header ? '✅' : '❌'}</div>
 			<div>Mobile Navigation: ${results.navigation ? '✅' : '❌'}</div>
 			<div>Content Full Width: ${results.content ? '✅' : '❌'}</div>
@@ -483,242 +358,67 @@ function initMobileLayout() {
 		});
 	}
 
-	// Mobile menu functionality
-	function initMobileMenu() {
-		// Create mobile menu button
-		const mobileMenuBtn = document.createElement('button');
-		mobileMenuBtn.className = 'nt-mobile-menu-btn';
-		mobileMenuBtn.innerHTML = '<span></span><span></span><span></span>';
-		document.body.appendChild(mobileMenuBtn);
+// Mobile menu functionality
+function initMobileMenu() {
+	if (mobileMenuInitialized) return;
+	const navWrapper = document.querySelector('.nt-mobile-nav');
+	const menuBtn = document.getElementById('nt-mobile-menu-btn');
+	const overlay = document.getElementById('nt-mobile-nav-overlay');
+	const closeBtn = document.getElementById('nt-mobile-nav-close');
+	if (!navWrapper || !menuBtn || !overlay) return;
 
-		// Create mobile overlay
-		const mobileOverlay = document.createElement('div');
-		mobileOverlay.className = 'nt-mobile-overlay';
-		document.body.appendChild(mobileOverlay);
+	const navItems = navWrapper.querySelector('.nt-mobile-nav-items');
+	const openNav = () => {
+		navWrapper.classList.add('open');
+		overlay.classList.add('active');
+		document.body.style.overflow = 'hidden';
+		menuBtn.classList.add('active');
+	};
+	const closeNav = () => {
+		navWrapper.classList.remove('open');
+		overlay.classList.remove('active');
+		document.body.style.overflow = '';
+		menuBtn.classList.remove('active');
+	};
 
-		// Get sidebar element
-		const sidebar = document.querySelector('.nt-sidebar');
-		if (!sidebar) return;
-		
-		// Ensure sidebar is hidden by default on mobile
-		if (window.innerWidth <= 768) {
-			sidebar.classList.remove('mobile-open');
-			sidebar.style.display = 'none';
-			sidebar.style.transform = 'translateX(-100%)';
-			sidebar.style.visibility = 'hidden';
-			sidebar.style.opacity = '0';
-		}
-
-		// Toggle mobile menu
-		function toggleMobileMenu() {
-			const isOpen = sidebar.classList.contains('mobile-open');
-			
-			if (isOpen) {
-				sidebar.classList.remove('mobile-open');
-				sidebar.style.display = 'none';
-				sidebar.style.transform = 'translateX(-100%)';
-				sidebar.style.visibility = 'hidden';
-				sidebar.style.opacity = '0';
-				mobileOverlay.classList.remove('active');
-				mobileMenuBtn.classList.remove('active');
-				document.body.style.overflow = '';
-			} else {
-				sidebar.classList.add('mobile-open');
-				sidebar.style.display = 'block';
-				sidebar.style.transform = 'translateX(0)';
-				sidebar.style.visibility = 'visible';
-				sidebar.style.opacity = '1';
-				mobileOverlay.classList.add('active');
-				mobileMenuBtn.classList.add('active');
-				document.body.style.overflow = 'hidden';
-			}
-		}
-
-		// Close mobile menu
-		function closeMobileMenu() {
-			sidebar.classList.remove('mobile-open');
-			sidebar.style.display = 'none';
-			sidebar.style.transform = 'translateX(-100%)';
-			sidebar.style.visibility = 'hidden';
-			sidebar.style.opacity = '0';
-			mobileOverlay.classList.remove('active');
-			mobileMenuBtn.classList.remove('active');
-			document.body.style.overflow = '';
-		}
-
-		// Event listeners
-		mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-		mobileOverlay.addEventListener('click', closeMobileMenu);
-
-		// Close menu when clicking on sidebar links
-		sidebar.addEventListener('click', (e) => {
-			if (e.target.closest('a, button')) {
-				setTimeout(closeMobileMenu, 100);
-			}
-		});
-
-		// Close menu on escape key
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape' && sidebar.classList.contains('mobile-open')) {
-				closeMobileMenu();
-			}
-		});
-
-		// Handle window resize
-		window.addEventListener('resize', () => {
-			if (window.innerWidth > 768) {
-				closeMobileMenu();
-			}
-		});
-
-		// Handle orientation change
-		window.addEventListener('orientationchange', () => {
-			setTimeout(() => {
-				if (window.innerWidth > 768) {
-					closeMobileMenu();
-				}
-			}, 100);
+	menuBtn.addEventListener('click', () => {
+		if (navWrapper.classList.contains('open')) closeNav();
+		else openNav();
+	});
+	overlay.addEventListener('click', closeNav);
+	closeBtn?.addEventListener('click', closeNav);
+	if (navItems) {
+		navItems.addEventListener('click', (event) => {
+			const link = event.target.closest('a');
+			if (link) closeNav();
 		});
 	}
-
-	// Force hide sidebar on mobile
-	function forceHideSidebarOnMobile() {
-		console.log('🔍 Checking mobile status:', window.innerWidth, '<= 768?', window.innerWidth <= 768);
-		
-		if (window.innerWidth <= 768) {
-			console.log('📱 Mobile detected! Hiding sidebar...');
-			
-			// Hide all possible sidebar elements
-			const sidebarSelectors = [
-				'.nt-sidebar', '.standard-sidebar', '.desk-sidebar', 
-				'.sidebar-section', '.layout-side-section', '.sidebar',
-				'.sidebar-container', '.sidebar-wrapper', '.desk-sidebar',
-				'[data-sidebar]', '.sidebar', '.layout-sidebar'
-			];
-			
-			let hiddenCount = 0;
-			sidebarSelectors.forEach(selector => {
-				const elements = document.querySelectorAll(selector);
-				elements.forEach(element => {
-					element.style.display = 'none !important';
-					element.style.visibility = 'hidden !important';
-					element.style.opacity = '0 !important';
-					element.style.transform = 'translateX(-100%) !important';
-					element.style.width = '0 !important';
-					element.style.minWidth = '0 !important';
-					element.style.maxWidth = '0 !important';
-					hiddenCount++;
-				});
-			});
-			
-			// Also hide by class patterns
-			const allElements = document.querySelectorAll('*');
-			allElements.forEach(element => {
-				if (element.className && typeof element.className === 'string') {
-					const className = element.className.toLowerCase();
-					if (className.includes('sidebar') || className.includes('side-section')) {
-						element.style.display = 'none !important';
-						hiddenCount++;
-					}
-				}
-			});
-			
-			console.log('✅ Hidden', hiddenCount, 'sidebar elements');
-			
-			// Make main content full width and visible
-			const mainSelectors = ['.layout-main-section', '.main-section', '.content-area', '.layout-main', '.main-content', '.desk-container'];
-			let mainCount = 0;
-			mainSelectors.forEach(selector => {
-				const elements = document.querySelectorAll(selector);
-				elements.forEach(element => {
-					element.style.width = '100%';
-					element.style.maxWidth = '100%';
-					element.style.marginLeft = '0';
-					element.style.paddingLeft = '0';
-					element.style.display = 'block';
-					element.style.visibility = 'visible';
-					element.style.opacity = '1';
-					mainCount++;
-					console.log('🔧 Fixed main content element:', selector, element);
-				});
-			});
-			console.log('✅ Made', mainCount, 'main content elements full width and visible');
-			
-			// Debug: Check what's in the body
-			console.log('🔍 Body children:', document.body.children.length);
-			console.log('🔍 Main section found:', document.querySelector('.layout-main-section') ? 'YES' : 'NO');
-			console.log('🔍 Desk container found:', document.querySelector('.desk-container') ? 'YES' : 'NO');
-		}
-	}
-	
-	// Simple Mobile Fix
-	function improveMobileUI() {
-		if (window.innerWidth <= 768) {
-			console.log('📱 Applying simple mobile fix...');
-			
-			// Hide sidebar on mobile
-			const sidebars = document.querySelectorAll('.layout-side-section, .desk-sidebar, .sidebar-section');
-			sidebars.forEach(sidebar => {
-				sidebar.style.display = 'none';
-			});
-			
-			// Hide mobile header if it exists
-			const mobileHeader = document.querySelector('.nt-mobile-header');
-			if (mobileHeader) {
-				mobileHeader.style.display = 'none';
-				console.log('✅ Hidden mobile header');
-			}
-			
-			// Make main content full width
-			const main = document.querySelector('.layout-main-section');
-			if (main) {
-				main.style.width = '100%';
-				main.style.maxWidth = '100%';
-			}
-			
-			console.log('✅ Simple mobile fix applied');
-		}
-	}
+	window.addEventListener('resize', () => {
+		if (!mobileMediaQuery.matches) closeNav();
+	});
+	window.addEventListener('orientationchange', () => {
+		setTimeout(() => {
+			if (!mobileMediaQuery.matches) closeNav();
+		}, 150);
+	});
+	mobileMenuInitialized = true;
+}
 
 	ready(() => {
 		applyThemeVars(getBootSettings());
 		// If a legacy route briefly triggered a Not Found modal, close it silently
 		setTimeout(closeNotFoundDialog, 0);
 		// Re-apply on desk refresh (route changes)
-		document.addEventListener("page-change", () => applyThemeVars(getBootSettings()));
+		document.addEventListener("page-change", () => {
+			applyThemeVars(getBootSettings());
+			if (mobileMediaQuery.matches) {
+				initMobileLayout();
+				testMobileLayout();
+			}
+		});
 		// Enforce default density on load
 		document.body.classList.remove('nt-density-compact', 'nt-density-touch');
 		try { localStorage.removeItem('nt:density'); } catch (e) {}
-		
-		// FINAL DESPERATE: Force hide sidebar on mobile immediately
-		forceHideSidebarOnMobile();
-		
-		// Run it multiple times to ensure it works
-		setTimeout(forceHideSidebarOnMobile, 25);
-		setTimeout(forceHideSidebarOnMobile, 50);
-		setTimeout(forceHideSidebarOnMobile, 100);
-		setTimeout(forceHideSidebarOnMobile, 200);
-		setTimeout(forceHideSidebarOnMobile, 500);
-		setTimeout(forceHideSidebarOnMobile, 1000);
-		setTimeout(forceHideSidebarOnMobile, 2000);
-		setTimeout(forceHideSidebarOnMobile, 5000);
-		
-		// Also run on window resize
-		window.addEventListener('resize', forceHideSidebarOnMobile);
-		
-		// Run on DOM mutations
-		const observer = new MutationObserver(() => {
-			if (window.innerWidth <= 768) {
-				forceHideSidebarOnMobile();
-			}
-		});
-		observer.observe(document.body, { childList: true, subtree: true });
-		
-		// Run on page load
-		window.addEventListener('load', forceHideSidebarOnMobile);
-		
-		// Run on DOM ready
-		document.addEventListener('DOMContentLoaded', forceHideSidebarOnMobile);
 		
 		// Initialize mobile layout
 		initMobileLayout();
@@ -732,489 +432,20 @@ function initMobileLayout() {
 		// Ensure proper viewport meta tag for mobile
 		ensureViewportMeta();
 
-		// Lightweight dashboard router: #dash/<role>
-		const roleDashConfig = {
-			"Sales Manager": {
-				kpis: [
-					{ label: 'Quotations (Draft)', doctype: 'Quotation', filters: { docstatus: 0 } },
-					{ label: 'Sales Orders (Draft)', doctype: 'Sales Order', filters: { docstatus: 0 } },
-					{ label: 'Sales Invoices (Draft)', doctype: 'Sales Invoice', filters: { docstatus: 0 } },
-				],
-				shortcuts: [
-					{ label: 'New Quotation', doctype: 'Quotation' },
-					{ label: 'New Sales Order', doctype: 'Sales Order' },
-					{ label: 'New Sales Invoice', doctype: 'Sales Invoice' }
-				]
-			},
-			"Purchase Manager": {
-				kpis: [
-					{ label: 'Purchase Orders (Draft)', doctype: 'Purchase Order', filters: { docstatus: 0 } },
-					{ label: 'Purchase Invoices (Draft)', doctype: 'Purchase Invoice', filters: { docstatus: 0 } },
-					{ label: 'Supplier Quotations (Draft)', doctype: 'Supplier Quotation', filters: { docstatus: 0 } }
-				],
-				shortcuts: [
-					{ label: 'New Supplier', doctype: 'Supplier' },
-					{ label: 'New Purchase Order', doctype: 'Purchase Order' },
-					{ label: 'New Purchase Invoice', doctype: 'Purchase Invoice' }
-				]
-			},
-			"Stock Manager": {
-				kpis: [
-					{ label: 'Open Delivery Notes', doctype: 'Delivery Note', filters: { docstatus: 0 } },
-					{ label: 'Stock Entries (Draft)', doctype: 'Stock Entry', filters: { docstatus: 0 } },
-					{ label: 'Items', doctype: 'Item', filters: {} }
-				],
-				shortcuts: [
-					{ label: 'New Item', doctype: 'Item' },
-					{ label: 'New Delivery Note', doctype: 'Delivery Note' },
-					{ label: 'New Stock Entry', doctype: 'Stock Entry' }
-				]
-			}
-			,
-			"Sales User": {
-				kpis: [ { label: 'My Quotations', doctype: 'Quotation', filters: { owner: frappe.session && frappe.session.user } }, { label: 'My Sales Orders', doctype: 'Sales Order', filters: { owner: frappe.session && frappe.session.user } } ],
-				shortcuts: [ { label: 'New Quotation', doctype: 'Quotation' }, { label: 'New Sales Order', doctype: 'Sales Order' } ]
-			},
-			"Purchase Manager": { /* existing */ },
-			"Purchase User": {
-				kpis: [ { label: 'My Purchase Orders', doctype: 'Purchase Order', filters: { owner: frappe.session && frappe.session.user } }, { label: 'Draft Purchase Invoices', doctype: 'Purchase Invoice', filters: { docstatus: 0 } } ],
-				shortcuts: [ { label: 'New Purchase Order', doctype: 'Purchase Order' }, { label: 'New Purchase Invoice', doctype: 'Purchase Invoice' } ]
-			},
-			"Accounts Manager": { kpis: [ { label: 'Unpaid Invoices', doctype: 'Sales Invoice', filters: { outstanding_amount: ['>', 0] } }, { label: 'Payable Invoices', doctype: 'Purchase Invoice', filters: { outstanding_amount: ['>', 0] } } ], shortcuts: [ { label: 'New Journal Entry', doctype: 'Journal Entry' } ] },
-			"Accounts User": { kpis: [ { label: 'Payment Entries', doctype: 'Payment Entry', filters: {} } ], shortcuts: [ { label: 'New Payment Entry', doctype: 'Payment Entry' } ] },
-			"HR Manager": { kpis: [ { label: 'Open Leaves', doctype: 'Leave Application', filters: { status: 'Open' } }, { label: 'Pending Appraisals', doctype: 'Appraisal', filters: { status: 'Draft' } } ], shortcuts: [ { label: 'New Employee', doctype: 'Employee' }, { label: 'New Leave Application', doctype: 'Leave Application' } ] },
-			"HR User": { kpis: [ { label: 'My Leaves', doctype: 'Leave Application', filters: { owner: frappe.session && frappe.session.user } } ], shortcuts: [ { label: 'Apply Leave', doctype: 'Leave Application' } ] },
-			"Projects Manager": { kpis: [ { label: 'Open Projects', doctype: 'Project', filters: { status: 'Open' } }, { label: 'Open Tasks', doctype: 'Task', filters: { status: 'Open' } } ], shortcuts: [ { label: 'New Project', doctype: 'Project' }, { label: 'New Task', doctype: 'Task' } ] },
-			"Projects User": { kpis: [ { label: 'My Tasks', doctype: 'Task', filters: { status: 'Open', owner: frappe.session && frappe.session.user } } ], shortcuts: [ { label: 'New Task', doctype: 'Task' } ] },
-			"Manufacturing Manager": { kpis: [ { label: 'Open Work Orders', doctype: 'Work Order', filters: { status: 'Not Started' } } ], shortcuts: [ { label: 'New Work Order', doctype: 'Work Order' } ] },
-			"Manufacturing User": { kpis: [ { label: 'In Progress Work Orders', doctype: 'Work Order', filters: { status: 'In Process' } } ], shortcuts: [ { label: 'New Job Card', doctype: 'Job Card' } ] },
-			"Stock Manager": { /* existing */ },
-			"Stock User": { kpis: [ { label: 'My Stock Entries', doctype: 'Stock Entry', filters: { owner: frappe.session && frappe.session.user } } ], shortcuts: [ { label: 'New Stock Entry', doctype: 'Stock Entry' } ] },
-			"Support Team": { kpis: [ { label: 'Open Issues', doctype: 'Issue', filters: { status: 'Open' } } ], shortcuts: [ { label: 'New Issue', doctype: 'Issue' } ] },
-			"Delivery Manager": { kpis: [ { label: 'Pending Deliveries', doctype: 'Delivery Note', filters: { docstatus: 0 } } ], shortcuts: [ { label: 'New Delivery Note', doctype: 'Delivery Note' } ] },
-			"Delivery User": { kpis: [ { label: 'My Deliveries (Draft)', doctype: 'Delivery Note', filters: { owner: frappe.session && frappe.session.user, docstatus: 0 } } ], shortcuts: [ { label: 'New Delivery Note', doctype: 'Delivery Note' } ] },
-			"Customer": { kpis: [ { label: 'My Quotations', doctype: 'Quotation', filters: { owner: frappe.session && frappe.session.user } } ], shortcuts: [] },
-			"Supplier": { kpis: [ { label: 'My Purchase Orders', doctype: 'Purchase Order', filters: { owner: frappe.session && frappe.session.user } } ], shortcuts: [] },
-			"Administrator": { kpis: [ { label: 'Users', doctype: 'User', filters: {} }, { label: 'Companies', doctype: 'Company', filters: {} } ], shortcuts: [ { label: 'New User', doctype: 'User' }, { label: 'New Company', doctype: 'Company' } ] }
-		};
-
-		// Curated, role-specific dashboards for sidebar roles
-		const curatedConfigByRole = {
-			"Human Resource": {
-				kpis: [
-					{ label: 'Active Employees', doctype: 'Employee', filters: { status: 'Active' }, color: 'emerald' },
-					{ label: 'Open Leave Applications', doctype: 'Leave Application', filters: { status: 'Open' }, color: 'indigo' },
-					{ label: 'Attendance (Today)', doctype: 'Attendance', filters: { attendance_date: frappe.datetime.get_today() }, color: 'amber' }
-				],
-				recents: [ { doctype: 'Employee', fields: ['name','employee_name','status','modified'] } ]
-			},
-			"Expense Claims": {
-				kpis: [
-					{ label: 'Pending Expense Claims', doctype: 'Expense Claim', filters: { docstatus: 0 }, color: 'rose' },
-					{ label: 'Approved (This Month)', doctype: 'Expense Claim', filters: { docstatus: 1 }, color: 'teal' },
-					{ label: 'Rejected (This Month)', doctype: 'Expense Claim', filters: { docstatus: 2 }, color: 'danger' }
-				],
-				recents: [ { doctype: 'Expense Claim', fields: ['name','employee','total_claimed_amount','status','modified'] } ]
-			},
-			"Attendance": {
-				kpis: [
-					{ label: 'Present Today', doctype: 'Attendance', filters: { attendance_date: frappe.datetime.get_today(), status: 'Present' }, color: 'emerald' },
-					{ label: 'Absent Today', doctype: 'Attendance', filters: { attendance_date: frappe.datetime.get_today(), status: 'Absent' }, color: 'rose' },
-					{ label: 'On Leave Today', doctype: 'Attendance', filters: { attendance_date: frappe.datetime.get_today(), status: 'On Leave' }, color: 'indigo' }
-				],
-				recents: [ { doctype: 'Attendance', fields: ['name','employee','status','attendance_date','modified'] } ]
-			},
-			"Employee Lifecycle": {
-				kpis: [
-					{ label: 'New Hires (30d)', doctype: 'Employee', filters: {}, color: 'indigo' },
-					{ label: 'Exits (30d)', doctype: 'Employee Separation', filters: {}, color: 'rose' },
-					{ label: 'Open Appraisals', doctype: 'Appraisal', filters: { status: 'Draft' }, color: 'amber' }
-				],
-				recents: [ { doctype: 'Employee', fields: ['name','employee_name','status','date_of_joining','modified'] } ]
-			},
-			"Recruitment": {
-				kpis: [
-					{ label: 'New Applicants (30d)', doctype: 'Job Applicant', filters: {}, color: 'teal' },
-					{ label: 'Open Job Openings', doctype: 'Job Opening', filters: { status: 'Open' }, color: 'indigo' },
-					{ label: 'Offers Sent (30d)', doctype: 'Job Offer', filters: {}, color: 'emerald' }
-				],
-				recents: [ { doctype: 'Job Applicant', fields: ['name','applicant_name','status','modified'] } ]
-			},
-			"Payroll": {
-				kpis: [
-					{ label: 'Salary Slips (Draft)', doctype: 'Salary Slip', filters: { docstatus: 0 }, color: 'amber' },
-					{ label: 'Payroll Entries (Open)', doctype: 'Payroll Entry', filters: { docstatus: 0 }, color: 'indigo' },
-					{ label: 'Processed (This Month)', doctype: 'Salary Slip', filters: { docstatus: 1 }, color: 'emerald' }
-				],
-				recents: [ { doctype: 'Salary Slip', fields: ['name','employee','status','modified'] } ]
-			},
-			"Stock": {
-				kpis: [
-					{ label: 'Delivery Notes (Draft)', doctype: 'Delivery Note', filters: { docstatus: 0 }, color: 'indigo' },
-					{ label: 'Stock Entries (Draft)', doctype: 'Stock Entry', filters: { docstatus: 0 }, color: 'teal' },
-					{ label: 'Items', doctype: 'Item', filters: {}, color: 'amber' }
-				],
-				recents: [ { doctype: 'Stock Entry', fields: ['name','stock_entry_type','modified'] } ]
-			},
-			"Buying": {
-				kpis: [
-					{ label: 'Purchase Orders (Draft)', doctype: 'Purchase Order', filters: { docstatus: 0 }, color: 'indigo' },
-					{ label: 'Receipts (Draft)', doctype: 'Purchase Receipt', filters: { docstatus: 0 }, color: 'teal' },
-					{ label: 'Supplier Quotations (Draft)', doctype: 'Supplier Quotation', filters: { docstatus: 0 }, color: 'amber' }
-				],
-				recents: [ { doctype: 'Purchase Order', fields: ['name','supplier','transaction_date','modified'] } ]
-			},
-			"Selling": {
-				kpis: [
-					{ label: 'Quotations (Draft)', doctype: 'Quotation', filters: { docstatus: 0 }, color: 'indigo' },
-					{ label: 'Sales Orders (Draft)', doctype: 'Sales Order', filters: { docstatus: 0 }, color: 'teal' },
-					{ label: 'Delivery Notes (Draft)', doctype: 'Delivery Note', filters: { docstatus: 0 }, color: 'amber' }
-				],
-				recents: [ { doctype: 'Sales Order', fields: ['name','customer','transaction_date','modified'] } ]
-			},
-			"Project": {
-				kpis: [
-					{ label: 'Open Projects', doctype: 'Project', filters: { status: 'Open' }, color: 'indigo' },
-					{ label: 'Open Tasks', doctype: 'Task', filters: { status: 'Open' }, color: 'amber' },
-					{ label: 'Timesheets (30d)', doctype: 'Timesheet', filters: {}, color: 'teal' }
-				],
-				recents: [ { doctype: 'Task', fields: ['name','subject','status','modified'] } ]
-			},
-			"CRM": {
-				kpis: [
-					{ label: 'New Leads (30d)', doctype: 'Lead', filters: {}, color: 'teal' },
-					{ label: 'Open Opportunities', doctype: 'Opportunity', filters: { status: ['!=','Lost'] }, color: 'indigo' },
-					{ label: 'Open Issues', doctype: 'Issue', filters: { status: 'Open' }, color: 'amber' }
-				],
-				recents: [ { doctype: 'Opportunity', fields: ['name','opportunity_from','party_name','status','modified'] } ]
-			},
-			"Accounts": {
-				kpis: [
-					{ label: 'Unpaid Sales Invoices', doctype: 'Sales Invoice', filters: { outstanding_amount: ['>', 0] }, color: 'rose' },
-					{ label: 'Unpaid Purchase Invoices', doctype: 'Purchase Invoice', filters: { outstanding_amount: ['>', 0] }, color: 'indigo' },
-					{ label: 'Payment Entries (30d)', doctype: 'Payment Entry', filters: {}, color: 'emerald' }
-				],
-				recents: [ { doctype: 'Sales Invoice', fields: ['name','customer','outstanding_amount','modified'] } ]
-			},
-			"Asset": {
-				kpis: [
-					{ label: 'Active Assets', doctype: 'Asset', filters: { status: 'Active' }, color: 'indigo' },
-					{ label: 'Assets on Maintenance', doctype: 'Asset', filters: { status: 'Maintenance' }, color: 'amber' },
-					{ label: 'Asset Movements (30d)', doctype: 'Asset Movement', filters: {}, color: 'teal' }
-				],
-				recents: [ { doctype: 'Asset', fields: ['name','asset_name','status','modified'] } ]
-			},
-			"Manufacturing": {
-				kpis: [
-					{ label: 'Open Work Orders', doctype: 'Work Order', filters: { status: 'Not Started' }, color: 'indigo' },
-					{ label: 'In Process Job Cards', doctype: 'Job Card', filters: { status: 'Work In Progress' }, color: 'amber' },
-					{ label: 'BOMs', doctype: 'BOM', filters: {}, color: 'teal' }
-				],
-				recents: [ { doctype: 'Work Order', fields: ['name','status','production_item','modified'] } ]
+		const handleMobileChange = (e) => {
+			if (e.matches) {
+				initMobileLayout();
+				testMobileLayout();
+			} else {
+				teardownMobileLayout();
 			}
 		};
-
-		async function getCount(doctype, filters) {
-			try {
-				const r = await frappe.call({ method: 'frappe.client.get_count', args: { doctype, filters } });
-				return r && typeof r.message === 'number' ? r.message : 0;
-			} catch (e) { return 0; }
+		handleMobileChange(mobileMediaQuery);
+		if (typeof mobileMediaQuery.addEventListener === 'function') {
+			mobileMediaQuery.addEventListener('change', handleMobileChange);
+		} else if (typeof mobileMediaQuery.addListener === 'function') {
+			mobileMediaQuery.addListener(handleMobileChange);
 		}
-
-		function bootSets(){
-			const u = window.frappe?.boot?.user || {};
-			return {
-				can_read: new Set(u.can_read || []),
-				can_create: new Set(u.can_create || [])
-			};
-		}
-
-		function kpiCandidate(label, doctype, filters){ return { label, doctype, filters: filters || {} }; }
-
-		function buildDynamicConfigForRole(role){
-			const perms = bootSets();
-			const candidates = [
-				kpiCandidate('Quotations (Draft)','Quotation',{ docstatus: 0 }),
-				kpiCandidate('Sales Orders (Draft)','Sales Order',{ docstatus: 0 }),
-				kpiCandidate('Sales Invoices (Draft)','Sales Invoice',{ docstatus: 0 }),
-				kpiCandidate('Purchase Orders (Draft)','Purchase Order',{ docstatus: 0 }),
-				kpiCandidate('Purchase Invoices (Draft)','Purchase Invoice',{ docstatus: 0 }),
-				kpiCandidate('Supplier Quotations (Draft)','Supplier Quotation',{ docstatus: 0 }),
-				kpiCandidate('Delivery Notes (Draft)','Delivery Note',{ docstatus: 0 }),
-				kpiCandidate('Stock Entries (Draft)','Stock Entry',{ docstatus: 0 }),
-				kpiCandidate('Open Projects','Project',{ status: 'Open' }),
-				kpiCandidate('Open Tasks','Task',{ status: 'Open' }),
-				kpiCandidate('Open Issues','Issue',{ status: 'Open' }),
-				kpiCandidate('Open Leaves','Leave Application',{ status: 'Open' }),
-				kpiCandidate('Payment Entries','Payment Entry',{}),
-				kpiCandidate('Journal Entries','Journal Entry',{})
-			];
-			const kpis = candidates.filter(c => perms.can_read.has(c.doctype)).slice(0, 6);
-			const shortcutCandidates = ['Quotation','Sales Order','Sales Invoice','Purchase Order','Purchase Invoice','Delivery Note','Stock Entry','Task','Issue','Payment Entry','Journal Entry','Project'];
-			const shortcuts = shortcutCandidates.filter(d => perms.can_create.has(d) || perms.can_read.has(d)).slice(0, 4).map(d => ({ label: 'New ' + d, doctype: d }));
-			if (!kpis.length) {
-				// Ultimate fallback
-				kpis.push(kpiCandidate('My ToDos','ToDo',{ status: ['!=','Closed'], owner: frappe.session && frappe.session.user }));
-			}
-			return { kpis, shortcuts };
-		}
-
-		function renderShortcuts(container, shortcuts) {
-			const row = document.createElement('div'); row.className = 'nt-dash-actions';
-			(shortcuts || []).forEach(s => {
-				const b = document.createElement('button'); b.className = 'nt-btn'; b.textContent = s.label;
-				b.onclick = () => { try { frappe.new_doc(s.doctype); } catch (e) {} };
-				row.appendChild(b);
-			});
-			container.appendChild(row);
-		}
-
-		async function renderKPIs(container, kpis) {
-			const grid = document.createElement('div'); grid.className = 'nt-dash-grid';
-			for (const k of (kpis || [])) {
-				const val = await getCount(k.doctype, k.filters || {});
-				const card = document.createElement('div'); card.className = 'nt-card nt-kpi' + (k.color ? (' nt-kpi-' + k.color) : '');
-				card.innerHTML = `<div class="nt-kpi-value">${val}</div><div class="nt-kpi-label">${k.label}</div>`;
-				card.style.cursor = 'pointer';
-				card.title = 'View details';
-				card.onclick = () => {
-					try{
-						const from = document.getElementById('nt-d-from')?.value;
-						const to = document.getElementById('nt-d-to')?.value;
-						const routeFilters = Object.assign({}, k.filters || {});
-						if (from && to) routeFilters.creation = ['between', [from, to]];
-						frappe.route_options = routeFilters;
-						frappe.set_route('List', k.doctype);
-					} catch(e) {}
-				};
-				grid.appendChild(card);
-			}
-			container.appendChild(grid);
-		}
-
-		function renderHero(container, role){
-			const user = (window.frappe?.boot?.user || {});
-			const name = user.full_name || user.name || 'User';
-			const hero = document.createElement('div'); hero.className = 'nt-hero';
-			hero.innerHTML = `<div class="nt-hero-left"><div class="nt-hero-title">Welcome, ${name}</div><div class="nt-hero-sub">${role} overview</div></div><div class="nt-hero-right"></div>`;
-			container.appendChild(hero);
-		}
-
-		function numberFormat(n){ try{ return (n||0).toLocaleString(); }catch(e){ return String(n||0); } }
-
-		async function renderTopList(container, opts){
-			const card = document.createElement('div'); card.className = 'nt-card nt-top-card';
-			card.innerHTML = `<div class="nt-card-header">${opts.title || 'Top List'}</div><div class="nt-top-body"></div>`;
-			container.appendChild(card);
-			const body = card.querySelector('.nt-top-body');
-			try{
-				const args = { doctype: opts.doctype, fields: opts.fields, order_by: opts.orderBy || '', limit: opts.limit || 10 };
-				const filters = [];
-				if (opts.from && opts.to && opts.dateField) filters.push([opts.dateField,'between',[opts.from, opts.to]]);
-				else if (opts.since && opts.dateField) filters.push([opts.dateField, '>=', opts.since]);
-				(opts.filters_extra || []).forEach(f => filters.push(f));
-				if (filters.length) args.filters = filters;
-				if (opts.groupBy) args.group_by = opts.groupBy;
-				const r = await frappe.call({ method:'frappe.client.get_list', args });
-				const rows = r.message || [];
-				if(!rows.length){ body.innerHTML = '<div class="nt-muted">No data</div>'; return; }
-				const labelKey = opts.labelField || opts.groupBy || Object.keys(rows[0])[0];
-				const valueKey = opts.valueField || 'amount';
-				body.innerHTML = rows.map((row, i) => `<div class="nt-top-row"><div class="nt-top-left"><span class="nt-rank">${i+1}</span> <span class="nt-name">${row[labelKey]||'-'}</span></div><div class="nt-top-right">${numberFormat(row[valueKey] || row.qty || row.amount || 0)}</div></div>`).join('');
-			}catch(e){ body.innerHTML = '<div class="nt-muted">Failed to load</div>'; }
-		}
-
-		async function buildAggList(doctype, labelField, valueExpr, dateField, from, to, since, extraFilters){
-			const args = { doctype, fields: [labelField, `${valueExpr} as value`], group_by: labelField, order_by: 'value desc', limit: 10 };
-			const filters = [];
-			if (from && to && dateField) filters.push([dateField,'between',[from, to]]);
-			else if (since && dateField) filters.push([dateField, '>=', since]);
-			(extraFilters || []).forEach(f => filters.push(f));
-			if (filters.length) args.filters = filters;
-			const r = await frappe.call({ method:'frappe.client.get_list', args });
-			return (r.message || []).map(x => ({ label: x[labelField], value: x.value }));
-		}
-
-		async function buildPieChart(el, doctype, labelField, valueExpr, dateField, from, to, since, extraFilters){
-			try{
-				const rows = await buildAggList(doctype, labelField, valueExpr, dateField, from, to, since, extraFilters);
-				if (!rows.length) { el.textContent = 'No data'; return; }
-				const labels = rows.map(r => String(r.label || '-'));
-				const values = rows.map(r => Number(r.value || 0));
-				if(chartAvailable()){
-					new frappe.Chart(el, { data: { labels, datasets: [{ values }] }, type:'percentage', height: 220, colors: ['#0EA5E9','#22C55E','#F59E0B','#6366F1','#EF4444','#14B8A6','#A78BFA','#84CC16','#F97316','#10B981'] });
-				}else{
-					el.textContent = values.join(', ');
-				}
-			}catch(e){ el.textContent=''; }
-		}
-
-		async function buildTrendChartLarge(el, doctype, dateField, from, to, since, chartType){
-			try{
-				const args = { doctype, fields:['name', dateField], limit: 1000, order_by: `${dateField} asc` };
-				const filters = [];
-				if (from && to && dateField) filters.push([dateField,'between',[from, to]]);
-				else if (since && dateField) filters.push([dateField, '>=', since]);
-				if (filters.length) args.filters = filters;
-				const r = await frappe.call({ method:'frappe.client.get_list', args });
-				const rows = (r.message||[]).map(x=>String(x[dateField]).substr(0,10));
-				const m = {};
-				rows.forEach(d => { m[d] = (m[d]||0)+1; });
-				const labels = Object.keys(m);
-				const values = labels.map(d=>m[d]);
-				if(chartAvailable()){
-					new frappe.Chart(el, { type: chartType || 'line', height: 260, data: { labels, datasets: [{ name: doctype, values }] } });
-				}else{ el.textContent = values.join(', '); }
-			}catch(e){ el.textContent=''; }
-		}
-
-		async function renderRecents(container, listDefs){
-			if(!listDefs || !listDefs.length) return;
-			const holder = document.createElement('div'); holder.className = 'nt-card';
-			holder.innerHTML = `<div class="nt-card-header">Recent Items</div><div class="nt-table"><div class="nt-thead"></div><div class="nt-tbody"></div></div>`;
-			container.appendChild(holder);
-			const head = holder.querySelector('.nt-thead');
-			const body = holder.querySelector('.nt-tbody');
-			const def = listDefs[0];
-			try{
-				const r = await frappe.call({ method:'frappe.client.get_list', args:{ doctype:def.doctype, fields:def.fields, order_by: 'modified desc', limit: 8 } });
-				const rows = r.message || [];
-				if(!rows.length) { holder.style.display='none'; return; }
-				const cols = Object.keys(rows[0]||{});
-				head.innerHTML = `<div class="nt-tr">${cols.map(c=>`<div class=\"nt-th\">${c}</div>`).join('')}</div>`;
-				body.innerHTML = rows.map(row => `<div class="nt-tr">${cols.map(c=>`<div class=\"nt-td\" title=\"${String(row[c]||'')}\">${String(row[c]||'')}</div>`).join('')}</div>`).join('');
-			}catch(e){}
-		}
-
-		function chartAvailable(){ return window.frappe && window.frappe.Chart; }
-        async function buildMiniChart(el, doctype, days, chartType){
-			try{
-				const since = frappe.datetime.add_days(frappe.datetime.get_today(), -days);
-				const r = await frappe.call({ method: 'frappe.client.get_list', args: { doctype, fields:['name','creation'], filters:[['creation','>=', since]], limit: 500, order_by: 'creation asc' } });
-				const rows = (r.message||[]).map(x=>x.creation.substr(0,10));
-				const series = {};
-				rows.forEach(d=>{ series[d]=(series[d]||0)+1; });
-				const labels = Object.keys(series);
-				const values = labels.map(d=>series[d]);
-				if(chartAvailable()){
-                    new frappe.Chart(el, { data: { labels, datasets: [{ name: doctype, values }] }, type:(chartType||'bar'), height:120 });
-				}else{
-					el.textContent = values.join(', ');
-				}
-			}catch(e){ el.textContent=''; }
-		}
-
-		function showToast(msg){ try{ frappe.show_alert({ message: msg, indicator: 'blue'});}catch(e){} }
-		function exportCSV(rows, name){
-			const csv = [Object.keys(rows[0]||{}).join(',')].concat((rows||[]).map(r=>Object.values(r).map(x=>`"${String(x).replaceAll('"','""')}"`).join(','))).join('\n');
-			const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-			const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(name||'export')+'.csv'; a.click();
-		}
-
-		async function showDashboard(role){
-			const host = document.getElementById('nt-content') || document.querySelector('.page-container');
-			if (!host) return;
-			host.innerHTML = '';
-			const wrap = document.createElement('div'); wrap.className = 'nt-dashboard nt-dash-compact';
-			wrap.innerHTML = `<div class=\"nt-dash-head\"><h2>${role} Dashboard</h2><div class=\"nt-dash-tools\"><input id=\"nt-d-from\" type=\"date\" class=\"nt-input\"/><input id=\"nt-d-to\" type=\"date\" class=\"nt-input\"/><select id=\"nt-d-range\"><option value=\"7\">7d</option><option value=\"30\">30d</option><option value=\"90\">90d</option></select><select id=\"nt-d-ctype\"><option value=\"bar\">Bar</option><option value=\"line\">Line</option></select><label style=\"display:inline-flex;align-items:center;gap:4px;\"><input id=\"nt-d-auto\" type=\"checkbox\"/> Auto</label><button id=\"nt-d-refresh\" class=\"nt-btn\">Refresh</button></div></div>`;
-			host.appendChild(wrap);
-			const cfg = curatedConfigByRole[role] || roleDashConfig[role] || buildDynamicConfigForRole(role);
-			renderHero(wrap, role);
-			renderShortcuts(wrap, cfg.shortcuts);
-			renderKPIs(wrap, cfg.kpis);
-			// charts row
-			const chartGrid = document.createElement('div'); chartGrid.className = 'nt-dash-grid';
-			(wrap.appendChild(chartGrid));
-			const chartTypeSel = wrap.querySelector('#nt-d-ctype');
-			const rangeSel = wrap.querySelector('#nt-d-range');
-			// apply preset early so charts use selected values
-			try {
-				const presetEarly = JSON.parse(localStorage.getItem('nt:dash:'+role)||'null');
-				if (presetEarly) {
-					if (presetEarly.range && rangeSel) rangeSel.value = String(presetEarly.range);
-					if (presetEarly.ctype && chartTypeSel) chartTypeSel.value = String(presetEarly.ctype);
-					if (presetEarly.compact === false) wrap.classList.remove('nt-dash-compact');
-				}
-			} catch(e) {}
-			(cfg.kpis || []).slice(0,3).forEach(k => {
-				const c = document.createElement('div'); c.className = 'nt-card';
-				const days = Number((rangeSel && rangeSel.value) || 30);
-				const type = (chartTypeSel && chartTypeSel.value) || 'bar';
-				c.innerHTML = `<div style=\"font-size:12px;color:var(--nt-text-dim);margin-bottom:6px\">${k.label} (last ${days}d)</div><div class=\"nt-mini-chart nt-skeleton\"></div>`;
-				chartGrid.appendChild(c);
-				buildMiniChart(c.querySelector('.nt-mini-chart'), k.doctype, days, type);
-			});
-			await renderRecents(wrap, cfg.recents || []);
-
-			// Top Lists (role/perms aware) — ONLY add widgets relevant to the selected role
-			const perms = bootSets();
-			const topGrid = document.createElement('div'); topGrid.className = 'nt-dash-grid nt-top-grid';
-			wrap.appendChild(topGrid);
-			const from = wrap.querySelector('#nt-d-from')?.value || null;
-			const to = wrap.querySelector('#nt-d-to')?.value || null;
-			const rangeSel2 = wrap.querySelector('#nt-d-range');
-			const since = (!from || !to) ? frappe.datetime.add_days(frappe.datetime.get_today(), -Number((rangeSel2 && rangeSel2.value) || 30)) : null;
-			if (/Selling|Sales|CRM|Accounts|Human Resource/i.test(role)) {
-				if (perms.can_read.has('Sales Invoice')) {
-					await renderTopList(topGrid, { title:'Top Customers (Sales)', doctype:'Sales Invoice', fields:['customer','sum(grand_total) as amount'], groupBy:'customer', orderBy:'amount desc', dateField:'posting_date', from, to, since, valueField:'amount', labelField:'customer' });
-					await renderTopList(topGrid, { title:'Top Customers (Invoice Count)', doctype:'Sales Invoice', fields:['customer','count(name) as count'], groupBy:'customer', orderBy:'count desc', dateField:'posting_date', from, to, since, valueField:'count', labelField:'customer' });
-					await renderTopList(topGrid, { title:'Top Returns (Customers)', doctype:'Sales Invoice', fields:['customer','sum(grand_total) as amount'], groupBy:'customer', orderBy:'amount desc', dateField:'posting_date', from, to, since, valueField:'amount', labelField:'customer', filters_extra:[['is_return','=',1]] });
-					await renderTopList(topGrid, { title:'Top Customers (Receivables)', doctype:'Sales Invoice', fields:['customer','sum(outstanding_amount) as amount'], groupBy:'customer', orderBy:'amount desc', dateField:'posting_date', from, to, since, valueField:'amount', labelField:'customer', filters_extra:[['docstatus','=',1], ['outstanding_amount','>',0]] });
-				}
-				if (perms.can_read.has('Sales Invoice Item')) {
-					await renderTopList(topGrid, { title:'Top Items (Sold Qty)', doctype:'Sales Invoice Item', fields:['item_code','sum(qty) as qty'], groupBy:'item_code', orderBy:'qty desc', dateField:'creation', from, to, since, valueField:'qty', labelField:'item_code' });
-					await renderTopList(topGrid, { title:'Top Items (Revenue)', doctype:'Sales Invoice Item', fields:['item_code','sum(amount) as amount'], groupBy:'item_code', orderBy:'amount desc', dateField:'creation', from, to, since, valueField:'amount', labelField:'item_code' });
-					const since90 = frappe.datetime.add_days(frappe.datetime.get_today(), -90);
-					await renderTopList(topGrid, { title:'Slow-moving Items (90d)', doctype:'Sales Invoice Item', fields:['item_code','sum(qty) as qty'], groupBy:'item_code', orderBy:'qty asc', dateField:'creation', since: since90, valueField:'qty', labelField:'item_code' });
-				}
-			}
-			if (/Buying|Stock|Purchase|Asset|Manufacturing/i.test(role)) {
-				if (perms.can_read.has('Purchase Invoice')) {
-					await renderTopList(topGrid, { title:'Top Suppliers (Purchase)', doctype:'Purchase Invoice', fields:['supplier','sum(grand_total) as amount'], groupBy:'supplier', orderBy:'amount desc', dateField:'posting_date', from, to, since, valueField:'amount', labelField:'supplier' });
-					await renderTopList(topGrid, { title:'Top Suppliers (Invoice Count)', doctype:'Purchase Invoice', fields:['supplier','count(name) as count'], groupBy:'supplier', orderBy:'count desc', dateField:'posting_date', from, to, since, valueField:'count', labelField:'supplier' });
-					await renderTopList(topGrid, { title:'Top Suppliers (Payables)', doctype:'Purchase Invoice', fields:['supplier','sum(outstanding_amount) as amount'], groupBy:'supplier', orderBy:'amount desc', dateField:'posting_date', from, to, since, valueField:'amount', labelField:'supplier', filters_extra:[['docstatus','=',1], ['outstanding_amount','>',0]] });
-				}
-			}
-            // load preset if available
-            try{
-                const preset = JSON.parse(localStorage.getItem('nt:dash:'+role)||'null');
-                if(preset){
-                    if(preset.range) wrap.querySelector('#nt-d-range').value = String(preset.range);
-                    if(preset.ctype) chartTypeSel.value = preset.ctype;
-                    if(preset.compact === false) wrap.classList.remove('nt-dash-compact');
-                }
-            }catch(e){}
-			const btn = wrap.querySelector('#nt-d-refresh');
-			if(btn){ btn.onclick = () => showDashboard(role); }
-			const full = wrap.querySelector('#nt-d-full'); if(full){ full.onclick = () => { document.body.classList.toggle('nt-dash-fullscreen'); }; }
-			const compact = wrap.querySelector('#nt-d-compact'); if(compact){ compact.onclick = () => { wrap.classList.toggle('nt-dash-compact'); }; }
-            const exp = wrap.querySelector('#nt-d-export'); if(exp){ exp.onclick = async () => {
-				try{
-					const sample = await frappe.call({ method:'frappe.client.get_list', args:{ doctype:(cfg.kpis[0]&&cfg.kpis[0].doctype)||'ToDo', fields:['name','owner','creation'], limit:50 } });
-					exportCSV(sample.message||[], role.replace(/\s+/g,'_')+'_kpis');
-					showToast('CSV exported');
-				}catch(e){ showToast('Export failed'); }
-			}; }
-            const save = wrap.querySelector('#nt-d-save'); if(save){ save.onclick = () => {
-                const data = { range: Number(wrap.querySelector('#nt-d-range').value||30), ctype: String(wrap.querySelector('#nt-d-ctype').value||'bar'), compact: wrap.classList.contains('nt-dash-compact') };
-                try{ localStorage.setItem('nt:dash:'+role, JSON.stringify(data||{})); showToast('Preset saved'); }catch(e){}
-            }; }
-			const def = wrap.querySelector('#nt-d-def'); if(def){ def.onclick = () => { try{ localStorage.setItem('nt:defaultDash', role); showToast('Default dashboard set'); }catch(e){} }; }
-			// react to control changes
-			if (chartTypeSel) chartTypeSel.onchange = () => showDashboard(role);
-			if (rangeSel) rangeSel.onchange = () => showDashboard(role);
-            // auto refresh
-            const auto = wrap.querySelector('#nt-d-auto');
-            if(auto){
-                let timer = null;
-                auto.onchange = () => {
-                    if(auto.checked){ timer = setInterval(()=>showDashboard(role), 30000); }
-                    else if(timer){ clearInterval(timer); timer=null; }
-                };
-            }
-		}
-		// expose for sidebar click
-		window.ntDashShow = showDashboard;
 
 		// Redirects
 		try {
@@ -1229,96 +460,16 @@ function initMobileLayout() {
 			}
 			// 2) If at /app/home, render default dashboard WITHOUT changing hash
 			if (p === '/app/home') {
-				const defaultDash = 'Human Resource';
-				setTimeout(() => { closeNotFoundDialog(); window.ntDashShow && window.ntDashShow(defaultDash); }, 0);
+				const defaultDash = null;
+				setTimeout(() => { closeNotFoundDialog(); }, 0);
 			}
 			// 3) legacy server routes like /dash/<Role> or /app/dash/<Role> -> client hash router
 			let m = p.match(/^\/dash\/(.+)$/) || p.match(/^\/app\/dash\/(.+)$/);
 			if (m && m[1]) {
 				const role = decodeURIComponent(m[1]);
 				location.replace('/app#dash/' + encodeURIComponent(role));
-				setTimeout(() => { closeNotFoundDialog(); window.ntDashShow && window.ntDashShow(role); }, 0);
+				setTimeout(() => { closeNotFoundDialog(); }, 0);
 			}
 		} catch (e) {}
 	});
 })();
-// NUCLEAR MOBILE INITIALIZATION - MULTIPLE TRIGGERS
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 DOMContentLoaded - Initializing mobile layout');
-    initMobileLayout();
-    testMobileLayout();
-});
-
-window.addEventListener('load', function() {
-    console.log('🚀 Window Load - Initializing mobile layout');
-    initMobileLayout();
-    testMobileLayout();
-});
-
-window.addEventListener('resize', function() {
-    console.log('🚀 Window Resize - Reinitializing mobile layout');
-    initMobileLayout();
-    testMobileLayout();
-});
-
-// Additional triggers for mobile layout
-document.addEventListener('page-change', function() {
-    console.log('🚀 Page Change - Reinitializing mobile layout');
-    setTimeout(() => {
-        initMobileLayout();
-        testMobileLayout();
-    }, 100);
-});
-
-// Force mobile layout every 500ms for first 5 seconds
-let mobileCheckInterval = setInterval(() => {
-    if (window.innerWidth <= 768) {
-        initMobileLayout();
-        testMobileLayout();
-    }
-}, 500);
-
-setTimeout(() => {
-    clearInterval(mobileCheckInterval);
-}, 5000);
-
-// Mutation observer to catch dynamically added elements
-const observer = new MutationObserver((mutations) => {
-    if (window.innerWidth <= 768) {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === 1) { // Element node
-                        const className = node.className || '';
-                        const id = node.id || '';
-                        if (className.includes('sidebar') || id.includes('sidebar')) {
-                            node.style.cssText = `
-                                display: none !important;
-                                visibility: hidden !important;
-                                opacity: 0 !important;
-                                width: 0 !important;
-                                height: 0 !important;
-                                overflow: hidden !important;
-                                position: fixed !important;
-                                left: -9999px !important;
-                                top: -9999px !important;
-                                z-index: -9999 !important;
-                            `;
-		}
-	}
-});
-
-// Expose mobile functions globally
-window.toggleMobileNav = toggleMobileNav;
-window.closeMobileNav = closeMobileNav;
-            }
-        });
-    }
-});
-
-observer.observe(document.body, {
-    childList: true,
-    subtree: true
-});
-
-

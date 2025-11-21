@@ -1,0 +1,326 @@
+{% extends "templates/web.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="/assets/new_theme/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <style>
+    /* Icon fallbacks */
+    .bi::before, [class^="bi-"]::before, [class*=" bi-"]::before {
+      font-family: "bootstrap-icons";
+    }
+  </style>
+{% endblock %}
+{% block page_content %}
+<div class="content">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2">
+        <div class="mb-3">
+            <h1 class="mb-1">Welcome, {{ frappe.session.user or 'Admin' }}</h1>
+            <p class="fw-medium">You have <span class="text-primary fw-bold">200+</span> Orders, Today</p>
+        </div>
+        <div class="input-icon-start position-relative mb-3">
+            <span class="input-icon-addon fs-16 text-gray-9">
+                <i class="bi bi-calendar"></i>
+            </span>
+            <input type="text" class="form-control date-range bookingrange" placeholder="Select Date Range" id="date-range-picker">
+        </div>
+    </div>
+
+    <div class="alert bg-orange-transparent alert-dismissible fade show mb-4">
+        <div>
+            <span><i class="bi bi-info-circle fs-14 text-orange me-2"></i>Your Product </span> 
+            <span class="text-orange fw-semibold"> Apple Iphone 15 is running Low, </span> 
+            already below 5 Pcs., 
+            <a href="javascript:void(0);" class="link-orange text-decoration-underline fw-semibold" data-bs-toggle="modal" data-bs-target="#add-stock">Add Stock</a>
+        </div>
+        <button type="button" class="btn-close text-gray-9 fs-14" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x"></i></button>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-primary sale-widget flex-fill">
+                <div class="card-body d-flex align-items-center">
+                    <span class="sale-icon bg-white text-primary">
+                        <i class="bi bi-file-text fs-24"></i>
+                    </span>
+                    <div class="ms-2">
+                        <p class="text-white mb-1">Total Sales</p>
+                        <div class="d-inline-flex align-items-center flex-wrap gap-2">
+                            <h4 class="text-white">$48,988,078</h4>
+                            <span class="badge badge-soft-primary"><i class="bi bi-arrow-up me-1"></i>+22%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-secondary sale-widget flex-fill">
+                <div class="card-body d-flex align-items-center">
+                    <span class="sale-icon bg-white text-secondary">
+                        <i class="bi bi-arrow-repeat fs-24"></i>
+                    </span>
+                    <div class="ms-2">
+                        <p class="text-white mb-1">Total Sales Return</p>
+                        <div class="d-inline-flex align-items-center flex-wrap gap-2">
+                            <h4 class="text-white">$16,478,145</h4>
+                            <span class="badge badge-soft-danger"><i class="bi bi-arrow-down me-1"></i>-22%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-teal sale-widget flex-fill">
+                <div class="card-body d-flex align-items-center">
+                    <span class="sale-icon bg-white text-teal">
+                        <i class="bi bi-gift fs-24"></i>
+                    </span>
+                    <div class="ms-2">
+                        <p class="text-white mb-1">Total Purchase</p>
+                        <div class="d-inline-flex align-items-center flex-wrap gap-2">
+                            <h4 class="text-white">$24,145,789</h4>
+                            <span class="badge badge-soft-success"><i class="bi bi-arrow-up me-1"></i>+22%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card bg-info sale-widget flex-fill">
+                <div class="card-body d-flex align-items-center">
+                    <span class="sale-icon bg-white text-info">
+                        <i class="bi bi-box-seam fs-24"></i>
+                    </span>
+                    <div class="ms-2">
+                        <p class="text-white mb-1">Total Purchase Return</p>
+                        <div class="d-inline-flex align-items-center flex-wrap gap-2">
+                            <h4 class="text-white">$18,458,747</h4>
+                            <span class="badge badge-soft-success"><i class="bi bi-arrow-up me-1"></i>+22%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profit -->
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card revenue-widget flex-fill">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                        <div>
+                            <h4 class="mb-1">$8,458,798</h4>
+                            <p>Profit</p>
+                        </div>
+                        <span class="revenue-icon bg-cyan-transparent text-cyan">
+                            <i class="bi bi-layers fs-16"></i>
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <p class="mb-0"><span class="fs-13 fw-bold text-success">+35%</span> vs Last Month</p>
+                        <a href="profit-and-loss" class="text-decoration-underline fs-13 fw-medium">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Profit -->
+
+        <!-- Invoice -->
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card revenue-widget flex-fill">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                        <div>
+                            <h4 class="mb-1">$48,988,78</h4>
+                            <p>Invoice Due</p>
+                        </div>
+                        <span class="revenue-icon bg-teal-transparent text-teal">
+                            <i class="bi bi-pie-chart fs-16"></i>
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <p class="mb-0"><span class="fs-13 fw-bold text-success">+35%</span> vs Last Month</p>
+                        <a href="invoice-report" class="text-decoration-underline fs-13 fw-medium">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Invoice -->
+
+        <!-- Expenses -->
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card revenue-widget flex-fill">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                        <div>
+                            <h4 class="mb-1">$8,980,097</h4>
+                            <p>Total Expenses</p>
+                        </div>
+                        <span class="revenue-icon bg-orange-transparent text-orange">
+                            <i class="bi bi-life-preserver fs-16"></i>
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <p class="mb-0"><span class="fs-13 fw-bold text-success">+41%</span> vs Last Month</p>
+                        <a href="expense-list" class="text-decoration-underline fs-13 fw-medium">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Expenses -->
+
+        <!-- Returns -->
+        <div class="col-xl-3 col-sm-6 col-12 d-flex">
+            <div class="card revenue-widget flex-fill">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                        <div>
+                            <h4 class="mb-1">$78,458,798</h4>
+                            <p>Total Payment Returns</p>
+                        </div>
+                        <span class="revenue-icon bg-indigo-transparent text-indigo">
+                            <i class="bi bi-hash fs-16"></i>
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <p class="mb-0"><span class="fs-13 fw-bold text-danger">-20%</span> vs Last Month</p>
+                        <a href="sales-report" class="text-decoration-underline fs-13 fw-medium">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Returns -->
+    </div>
+
+    <div class="row">
+        <!-- Sales & Purchase -->
+        <div class="col-xxl-8 col-xl-7 col-sm-12 col-12 d-flex">
+            <div class="card flex-fill">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-inline-flex align-items-center">
+                        <span class="title-icon bg-soft-primary fs-16 me-2"><i class="bi bi-cart"></i></span>
+                        <h5 class="card-title mb-0">Sales &amp; Purchase</h5>
+                    </div>
+                    <ul class="nav btn-group custom-btn-group">
+                        <a class="btn btn-outline-light" href="javascript:void(0);" data-period="1D">1D</a>
+                        <a class="btn btn-outline-light" href="javascript:void(0);" data-period="1W">1W</a>
+                        <a class="btn btn-outline-light" href="javascript:void(0);" data-period="1M">1M</a>
+                        <a class="btn btn-outline-light" href="javascript:void(0);" data-period="3M">3M</a>
+                        <a class="btn btn-outline-light" href="javascript:void(0);" data-period="6M">6M</a>
+                        <a class="btn btn-outline-light active" href="javascript:void(0);" data-period="1Y">1Y</a>
+                    </ul>
+                </div>
+                <div class="card-body pb-0">
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="border p-2 br-8">
+                                <p class="d-inline-flex align-items-center mb-1"><i class="bi bi-circle-fill fs-8 text-primary-300 me-1"></i>Total Purchase</p>
+                                <h4>3K</h4>
+                            </div>
+                            <div class="border p-2 br-8">
+                                <p class="d-inline-flex align-items-center mb-1"><i class="bi bi-circle-fill fs-8 text-primary me-1"></i>Total Sales</p>
+                                <h4>1K</h4>
+                            </div>
+                        </div>
+                        <div id="sales-daychart" style="min-height: 260px;">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Sales & Purchase -->
+
+        <!-- Overall Information -->
+        <div class="col-xxl-4 col-xl-5 d-flex">
+            <div class="card flex-fill">
+                <div class="card-header">
+                    <div class="d-inline-flex align-items-center">
+                        <span class="title-icon bg-soft-info fs-16 me-2"><i class="bi bi-info-circle"></i></span>
+                        <h5 class="card-title mb-0">Overall Information</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="info-item border bg-light p-3 text-center">
+                                <div class="mb-2 text-info fs-24">
+                                    <i class="bi bi-person-check"></i>
+                                </div>
+                                <p class="mb-1">Suppliers</p>
+                                <h5>6987</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-item border bg-light p-3 text-center">
+                                <div class="mb-2 text-orange fs-24">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <p class="mb-1">Customer</p>
+                                <h5>4896</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-item border bg-light p-3 text-center">
+                                <div class="mb-2 text-teal fs-24">
+                                    <i class="bi bi-cart"></i>
+                                </div>
+                                <p class="mb-1">Orders</p>
+                                <h5>487</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer pb-sm-0">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <h5>Customers Overview</h5>
+                        <div class="dropdown dropdown-wraper">
+                            <a href="javascript:void(0);" class="dropdown-toggle btn btn-sm btn-white" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-calendar me-1"></i>Today
+                            </a>
+                            <ul class="dropdown-menu p-3">
+                                <li><a href="javascript:void(0);" class="dropdown-item">Today</a></li>
+                                <li><a href="javascript:void(0);" class="dropdown-item">Weekly</a></li>
+                                <li><a href="javascript:void(0);" class="dropdown-item">Monthly</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row align-items-center">
+                        <div class="col-sm-5">
+                            <div id="customer-chart" style="min-height: 153px;">
+                                <!-- Chart will be rendered here -->
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <div class="row gx-0">
+                                <div class="col-sm-6">
+                                    <div class="text-center border-end">
+                                        <h2 class="mb-1">5.5K</h2>
+                                        <p class="text-orange mb-2">First Time</p>
+                                        <span class="badge badge-success badge-xs d-inline-flex align-items-center"><i class="bi bi-arrow-up-left me-1"></i>25%</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-center">
+                                        <h2 class="mb-1">3.5K</h2>
+                                        <p class="text-teal mb-2">Return</p>
+                                        <span class="badge badge-success badge-xs d-inline-flex align-items-center"><i class="bi bi-arrow-up-left me-1"></i>21%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/assets/new_theme/js/dashboard.js"></script>
+{% endblock %}
+

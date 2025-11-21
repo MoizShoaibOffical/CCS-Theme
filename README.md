@@ -12,6 +12,11 @@ bench get-app $URL_OF_THIS_REPO --branch develop
 bench install-app new_theme
 ```
 
+### Highlights
+
+- Deterministic mobile layout controller that swaps in a custom header + navigation drawer automatically on small screens without destructive inline hacks.
+- Built-in theme customizer and preference store so administrators can roll out consistent branding with a couple of clicks.
+
 ### Contributing
 
 This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:

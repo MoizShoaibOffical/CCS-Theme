@@ -212,7 +212,10 @@ override_whitelisted_methods = {
 	"new_theme.api.workspace_sidebar.get_workspace_sidebar": "new_theme.api.workspace_sidebar.get_workspace_sidebar",
 	"new_theme.api.workspace_sidebar.clear_workspace_sidebar_cache": "new_theme.api.workspace_sidebar.clear_workspace_sidebar_cache",
 	"new_theme.api.test_workspace_sidebar.create_test_data": "new_theme.api.test_workspace_sidebar.create_test_data",
-	"new_theme.api.test_workspace_sidebar.clear_test_data": "new_theme.api.test_workspace_sidebar.clear_test_data"
+	"new_theme.api.test_workspace_sidebar.clear_test_data": "new_theme.api.test_workspace_sidebar.clear_test_data",
+	"new_theme.api.dashboard.get_dashboard_data": "new_theme.api.dashboard.get_dashboard_data",
+	"new_theme.api.dashboard.get_chart_data": "new_theme.api.dashboard.get_chart_data",
+	"new_theme.api.add_dashboard_to_home.add_dashboard_to_home": "new_theme.api.add_dashboard_to_home.add_dashboard_to_home"
 }
 #
 # each overriding function accepts a `data` argument;

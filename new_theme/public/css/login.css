@@ -1,11 +1,11 @@
 /* Basic reset */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
 * { box-sizing: border-box; }
 
 /* Hide default website chrome */
 .navbar, .navbar.navbar-expand, .page-breadcrumbs, .web-footer, .page-footer, .footer { display: none !important; }
 
-body { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif; }
+body { font-family: 'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif; }
 body.account-page, .login-shell { min-height: 100vh; }
 
 .login-shell { position: fixed; inset: 0; display: grid; place-items: stretch; min-height: 100vh; background: transparent; z-index: 0; }

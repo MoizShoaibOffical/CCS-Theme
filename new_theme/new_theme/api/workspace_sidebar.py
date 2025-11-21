@@ -20,7 +20,7 @@ def get_workspace_sidebar():
 		"Workspace",
 		filters={"is_hidden": 0, "public": 1},
 		fields=["name", "title", "icon", "module"],
-		order_by="sequence_id, title"
+		order_by="title ASC"
 	)
 	
 	# Build menu tree from workspaces
@@ -111,6 +111,9 @@ def get_workspace_sidebar():
 			# If there's an error accessing workspace, skip it
 			frappe.log_error(f"Error accessing workspace {workspace.name}: {str(e)}")
 			continue
+	
+	# Sort menu tree alphabetically by label (title)
+	menu_tree.sort(key=lambda x: (x.get("label", "").lower() if x.get("label") else ""))
 	
 	# Cache the result
 	frappe.cache().set_value(cache_key, menu_tree, expires_in_sec=300)
